@@ -2,6 +2,12 @@
 
 A high-performance, lightweight logging framework for Java 17+ inspired by Log4j, designed for modern applications with emphasis on simplicity, thread safety, and configurability.
 
+## Documentation
+
+- 📖 **[API Documentation](https://richardahasting.github.io/log4Rich/)** - Complete JavaDoc API reference
+- 📚 **[User Guide](#quick-start)** - Getting started and usage examples
+- 🔧 **[Configuration Reference](#configuration)** - Complete configuration guide
+
 ## Features
 
 - ✅ **7 Log Levels**: TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF
@@ -203,6 +209,20 @@ ConfigurationManager.ConfigurationStats stats = Log4Rich.getStats();
 System.out.println("Active loggers: " + stats.getLoggerCount());
 System.out.println("Active appenders: " + stats.getAppenderCount());
 ```
+
+## API Documentation
+
+The complete JavaDoc API documentation is available online at:
+
+**🌐 https://richardahasting.github.io/log4Rich/**
+
+### Key Documentation Pages
+
+- **[Log4Rich Main API](https://richardahasting.github.io/log4Rich/com/log4rich/Log4Rich.html)** - Main entry point and facade
+- **[Logger Core](https://richardahasting.github.io/log4Rich/com/log4rich/core/Logger.html)** - Core logging functionality
+- **[Configuration Management](https://richardahasting.github.io/log4Rich/com/log4rich/config/ConfigurationManager.html)** - Runtime configuration
+- **[Appenders](https://richardahasting.github.io/log4Rich/com/log4rich/appenders/package-summary.html)** - Output destinations
+- **[All Classes](https://richardahasting.github.io/log4Rich/allclasses-index.html)** - Complete class index
 
 ## Building
 
