@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"com.log4rich"},{"l":"com.log4rich.appenders"},{"l":"com.log4rich.config"},{"l":"com.log4rich.core"},{"l":"com.log4rich.layouts"},{"l":"com.log4rich.util"}];updateSearchResults();

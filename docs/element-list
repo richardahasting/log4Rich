@@ -1,0 +1,6 @@
+com.log4rich
+com.log4rich.appenders
+com.log4rich.config
+com.log4rich.core
+com.log4rich.layouts
+com.log4rich.util
