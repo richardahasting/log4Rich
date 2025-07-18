@@ -54,6 +54,17 @@ public class Configuration {
     private static final int DEFAULT_MAX_LOGGER_NAME_LENGTH = 30;
     private static final String DEFAULT_CLASS_FORMAT = "SIMPLE";
     
+    // Performance enhancement defaults
+    private static final boolean DEFAULT_MEMORY_MAPPED = false;
+    private static final long DEFAULT_MAPPED_SIZE = 64L * 1024 * 1024; // 64MB
+    private static final boolean DEFAULT_FORCE_ON_WRITE = false;
+    private static final long DEFAULT_FORCE_INTERVAL = 1000; // 1 second
+    private static final boolean DEFAULT_BATCH_ENABLED = false;
+    private static final int DEFAULT_BATCH_SIZE = 1000;
+    private static final long DEFAULT_BATCH_TIME_MS = 100;
+    private static final boolean DEFAULT_ZERO_ALLOCATION = false;
+    private static final int DEFAULT_STRING_BUILDER_CAPACITY = 1024;
+    
     private final Properties properties;
     private final Map<String, LogLevel> loggerLevels;
     
@@ -108,6 +119,17 @@ public class Configuration {
         properties.setProperty("log4rich.truncateLoggerNames", String.valueOf(DEFAULT_TRUNCATE_LOGGER_NAMES));
         properties.setProperty("log4rich.maxLoggerNameLength", String.valueOf(DEFAULT_MAX_LOGGER_NAME_LENGTH));
         properties.setProperty("log4rich.class.format", DEFAULT_CLASS_FORMAT);
+        
+        // Performance enhancement defaults
+        properties.setProperty("log4rich.performance.memoryMapped", String.valueOf(DEFAULT_MEMORY_MAPPED));
+        properties.setProperty("log4rich.performance.mappedSize", String.valueOf(DEFAULT_MAPPED_SIZE));
+        properties.setProperty("log4rich.performance.forceOnWrite", String.valueOf(DEFAULT_FORCE_ON_WRITE));
+        properties.setProperty("log4rich.performance.forceInterval", String.valueOf(DEFAULT_FORCE_INTERVAL));
+        properties.setProperty("log4rich.performance.batchEnabled", String.valueOf(DEFAULT_BATCH_ENABLED));
+        properties.setProperty("log4rich.performance.batchSize", String.valueOf(DEFAULT_BATCH_SIZE));
+        properties.setProperty("log4rich.performance.batchTimeMs", String.valueOf(DEFAULT_BATCH_TIME_MS));
+        properties.setProperty("log4rich.performance.zeroAllocation", String.valueOf(DEFAULT_ZERO_ALLOCATION));
+        properties.setProperty("log4rich.performance.stringBuilderCapacity", String.valueOf(DEFAULT_STRING_BUILDER_CAPACITY));
     }
     
     /**
@@ -385,6 +407,126 @@ public class Configuration {
      */
     public String getProperty(String key, String defaultValue) {
         return properties.getProperty(key, defaultValue);
+    }
+    
+    // Performance enhancement configuration methods
+    
+    /**
+     * Checks if memory-mapped file I/O is enabled.
+     * 
+     * @return true if memory-mapped files should be used
+     */
+    public boolean isMemoryMappedEnabled() {
+        return Boolean.parseBoolean(properties.getProperty("log4rich.performance.memoryMapped"));
+    }
+    
+    /**
+     * Gets the initial size for memory-mapped file regions.
+     * 
+     * @return the mapped size in bytes
+     */
+    public long getMappedSize() {
+        String sizeStr = properties.getProperty("log4rich.performance.mappedSize");
+        if (sizeStr == null) {
+            return DEFAULT_MAPPED_SIZE;
+        }
+        return parseSize(sizeStr);
+    }
+    
+    /**
+     * Checks if force-on-write is enabled for memory-mapped files.
+     * 
+     * @return true if every write should be forced to disk
+     */
+    public boolean isForceOnWriteEnabled() {
+        return Boolean.parseBoolean(properties.getProperty("log4rich.performance.forceOnWrite"));
+    }
+    
+    /**
+     * Gets the force interval for memory-mapped files.
+     * 
+     * @return the force interval in milliseconds
+     */
+    public long getForceInterval() {
+        return Long.parseLong(properties.getProperty("log4rich.performance.forceInterval"));
+    }
+    
+    /**
+     * Checks if batch processing is enabled for file writes.
+     * 
+     * @return true if batch processing should be used
+     */
+    public boolean isBatchEnabled() {
+        return Boolean.parseBoolean(properties.getProperty("log4rich.performance.batchEnabled"));
+    }
+    
+    /**
+     * Gets the batch size for batch processing.
+     * 
+     * @return the maximum number of events per batch
+     */
+    public int getBatchSize() {
+        return Integer.parseInt(properties.getProperty("log4rich.performance.batchSize"));
+    }
+    
+    /**
+     * Gets the batch time limit for batch processing.
+     * 
+     * @return the maximum time to wait before flushing batch (milliseconds)
+     */
+    public long getBatchTimeMs() {
+        return Long.parseLong(properties.getProperty("log4rich.performance.batchTimeMs"));
+    }
+    
+    /**
+     * Checks if zero-allocation logging is enabled.
+     * 
+     * @return true if object pooling should be used
+     */
+    public boolean isZeroAllocationEnabled() {
+        return Boolean.parseBoolean(properties.getProperty("log4rich.performance.zeroAllocation"));
+    }
+    
+    /**
+     * Gets the initial StringBuilder capacity for object pooling.
+     * 
+     * @return the StringBuilder capacity in characters
+     */
+    public int getStringBuilderCapacity() {
+        return Integer.parseInt(properties.getProperty("log4rich.performance.stringBuilderCapacity"));
+    }
+    
+    /**
+     * Parses a size string (e.g., "10M", "64MB", "1G") to bytes.
+     * 
+     * @param sizeStr the size string to parse
+     * @return the size in bytes
+     */
+    private long parseSize(String sizeStr) {
+        if (sizeStr == null || sizeStr.trim().isEmpty()) {
+            return DEFAULT_MAPPED_SIZE;
+        }
+        
+        String str = sizeStr.trim().toUpperCase();
+        long multiplier = 1;
+        
+        if (str.endsWith("K") || str.endsWith("KB")) {
+            multiplier = 1024L;
+            str = str.replaceAll("KB?$", "");
+        } else if (str.endsWith("M") || str.endsWith("MB")) {
+            multiplier = 1024L * 1024L;
+            str = str.replaceAll("MB?$", "");
+        } else if (str.endsWith("G") || str.endsWith("GB")) {
+            multiplier = 1024L * 1024L * 1024L;
+            str = str.replaceAll("GB?$", "");
+        }
+        
+        try {
+            return Long.parseLong(str.trim()) * multiplier;
+        } catch (NumberFormatException e) {
+            System.err.println("Invalid size format: " + sizeStr + ", using default");
+            return DEFAULT_MAPPED_SIZE;
+        }
     }
     
     /**
