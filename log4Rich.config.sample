@@ -1,224 +1,190 @@
-# log4Rich Configuration File
-# This file configures the log4Rich logging framework
-# Place this file in your classpath as 'log4Rich.config'
+#
+# log4Rich Configuration File Sample
+#
+# This configuration file demonstrates all available settings for log4Rich.
+# Copy this file to one of the search locations listed below.
+#
+# CONFIGURATION FILE SEARCH ORDER (highest to lowest precedence):
+# 1. System Property: -Dlog4rich.config=/path/to/config
+# 2. Classpath: log4Rich.config (root of classpath)
+# 3. Current Directory: ./log4Rich.config
+# 4. Parent Directory: ../log4Rich.config
+# 5. Config Directories:
+#    - ./config/log4Rich.config
+#    - ./conf/log4Rich.config
+#    - ../config/log4Rich.config
+#    - ../conf/log4Rich.config
+#
+# To use this file:
+# 1. Copy to log4Rich.config in your project root, or
+# 2. Copy to config/log4Rich.config in your project, or
+# 3. Specify with -Dlog4rich.config=/path/to/your/config
+#
 
-# ============================================
-# GLOBAL SETTINGS
-# ============================================
+# =============================================================================
+# ROOT LOGGER SETTINGS
+# =============================================================================
 
 # Root logger level (TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF)
-# This sets the minimum logging level for all loggers
+# Default: INFO
 log4rich.rootLevel=INFO
 
-# Enable/disable console output (true/false)
-log4rich.console.enabled=true
-
-# Enable/disable file output (true/false)
-log4rich.file.enabled=true
-
-# ============================================
-# CONSOLE APPENDER SETTINGS
-# ============================================
-
-# Console output target (STDOUT or STDERR)
-log4rich.console.target=STDOUT
-
-# Minimum level for console output (overrides root level for console)
-# Leave empty to use root level
-log4rich.console.level=
-
-# Console output pattern
-# Available placeholders:
-#   %level    - Log level (INFO, ERROR, etc.)
-#   %date{}   - Date/time with custom format (e.g., %date{yyyy-MM-dd HH:mm:ss})
-#   %thread   - Thread name
-#   %logger   - Logger name
-#   %class    - Class name where log was called
-#   %method   - Method name where log was called
-#   %line     - Line number where log was called
-#   %file     - Source file name
-#   %message  - Log message
-#   %n        - New line
-log4rich.console.pattern=[%level] %date{yyyy-MM-dd HH:mm:ss} [%thread] %class.%method:%line - %message%n
-
-# ============================================
-# ROLLING FILE APPENDER SETTINGS
-# ============================================
-
-# Base log file path
-log4rich.file.path=logs/application.log
-
-# Minimum level for file output (overrides root level for files)
-# Leave empty to use root level
-log4rich.file.level=
-
-# File output pattern (same placeholders as console pattern)
-log4rich.file.pattern=[%level] %date{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %class.%method:%line - %message%n
-
-# Maximum file size before rotation (supports K, M, G suffixes)
-# Examples: 10M (10 megabytes), 100K (100 kilobytes), 1G (1 gigabyte)
-log4rich.file.maxSize=10M
-
-# Number of backup files to keep (rolled files)
-# Older files beyond this number will be deleted
-log4rich.file.maxBackups=10
-
-# Enable compression for rolled files (true/false)
-# When enabled, rolled files will be compressed with the specified program
-log4rich.file.compress=true
-
-# Compression program to use (default: gzip)
-# Examples: gzip, bzip2, xz, zip, 7z
-# Note: The program must be available in the system PATH
-log4rich.file.compress.program=gzip
-
-# Arguments for the compression program
-# Use %s as placeholder for the filename
-# Default is empty (program's default behavior)
-# Examples:
-#   For gzip: -9 (maximum compression)
-#   For bzip2: -9 (maximum compression)
-#   For xz: -9 -T0 (max compression, use all CPU cores)
-#   For zip: -9 -m (max compression, move file into zip)
-#   For 7z: a -mx=9 -sdel (add to archive, max compression, delete original)
-log4rich.file.compress.args=-9
-
-# File encoding (default: UTF-8)
-log4rich.file.encoding=UTF-8
-
-# ============================================
-# PERFORMANCE SETTINGS
-# ============================================
-
-# Buffer size for file writes (in bytes)
-# Larger buffers improve performance but may delay log visibility
-log4rich.file.bufferSize=8192
-
-# Flush automatically after each log entry (true/false)
-# Set to false for better performance, true for immediate visibility
-log4rich.file.immediateFlush=true
-
-# Enable/disable location information capture (class, method, line)
-# Disabling improves performance but loses debugging information
+# Enable location information capture (class name, method name, line number)
+# This impacts performance but provides detailed logging context
+# Default: true
 log4rich.location.capture=true
 
-# ============================================
-# THREAD SAFETY SETTINGS
-# ============================================
+# =============================================================================
+# CONSOLE LOGGING SETTINGS
+# =============================================================================
 
-# Lock timeout in milliseconds for thread-safe operations
-# Prevents indefinite blocking in high-contention scenarios
-log4rich.thread.lockTimeout=5000
+# Enable console logging
+# Default: true
+log4rich.console.enabled=true
 
-# ============================================
-# LOGGER-SPECIFIC SETTINGS
-# ============================================
+# Console output target (STDOUT, STDERR)
+# Default: STDOUT
+log4rich.console.target=STDOUT
 
-# You can configure specific loggers by name
-# Format: log4rich.logger.<logger-name>=<level>
-# Examples:
-log4rich.logger.com.myapp.database=DEBUG
-log4rich.logger.com.myapp.security=WARN
-log4rich.logger.com.thirdparty.library=ERROR
+# Console message pattern
+# Default: [%level] %date{yyyy-MM-dd HH:mm:ss} [%thread] %class.%method:%line - %message%n
+log4rich.console.pattern=[%level] %date{yyyy-MM-dd HH:mm:ss} [%thread] %class.%method:%line - %message%n
 
-# ============================================
-# ADVANCED SETTINGS
-# ============================================
+# Console-specific log level (overrides root level for console only)
+# If not specified, uses root level
+#log4rich.console.level=DEBUG
 
-# Date format for rolled file names
-# This is appended to the base filename when files are rolled
+# =============================================================================
+# FILE LOGGING SETTINGS
+# =============================================================================
+
+# Enable file logging
+# Default: true
+log4rich.file.enabled=true
+
+# Log file path (relative or absolute)
+# Default: logs/application.log
+log4rich.file.path=logs/application.log
+
+# File message pattern
+# Default: [%level] %date{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %class.%method:%line - %message%n
+log4rich.file.pattern=[%level] %date{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %class.%method:%line - %message%n
+
+# File-specific log level (overrides root level for file only)
+# If not specified, uses root level
+#log4rich.file.level=DEBUG
+
+# Maximum file size before rolling (supports K, M, G suffixes)
+# Default: 10M
+log4rich.file.maxSize=10M
+
+# Number of backup files to keep
+# Default: 10
+log4rich.file.maxBackups=10
+
+# File encoding
+# Default: UTF-8
+log4rich.file.encoding=UTF-8
+
+# Flush immediately after each write (true for safety, false for performance)
+# Default: true
+log4rich.file.immediateFlush=true
+
+# Buffer size in bytes for file writing
+# Default: 8192
+log4rich.file.bufferSize=8192
+
+# Date pattern for backup file naming
+# Default: yyyy-MM-dd-HH-mm-ss
 log4rich.file.datePattern=yyyy-MM-dd-HH-mm-ss
 
-# Enable/disable logger name truncation in output
-# When enabled, com.myapp.MyClass becomes c.m.MyClass
-log4rich.truncateLoggerNames=false
+# =============================================================================
+# COMPRESSION SETTINGS
+# =============================================================================
 
-# Maximum logger name length (only used if truncation is enabled)
-log4rich.maxLoggerNameLength=30
+# Enable compression for rolled log files
+# Default: true
+log4rich.file.compress=true
 
-# Format for class names in output
-# Options: FULL (com.myapp.MyClass), SIMPLE (MyClass), TRUNCATED (c.m.MyClass)
-log4rich.class.format=SIMPLE
+# Compression program (gzip, bzip2, xz, zip, 7z, or custom program)
+# Default: gzip
+log4rich.file.compress.program=gzip
 
-# ============================================
-# COMPRESSION EXAMPLES
-# ============================================
+# Additional compression arguments
+# Default: (empty)
+log4rich.file.compress.args=
 
-# Example compression configurations:
-#
-# Standard gzip (default):
-# log4rich.file.compress.program=gzip
-# log4rich.file.compress.args=
-#
-# Maximum gzip compression:
-# log4rich.file.compress.program=gzip
-# log4rich.file.compress.args=-9
-#
-# Fast gzip compression:
-# log4rich.file.compress.program=gzip
-# log4rich.file.compress.args=-1
-#
-# bzip2 compression (better compression, slower):
-# log4rich.file.compress.program=bzip2
-# log4rich.file.compress.args=-9
-#
-# xz compression (best compression, slowest):
-# log4rich.file.compress.program=xz
-# log4rich.file.compress.args=-9 -T0
-#
-# zip archive (creates .zip files):
-# log4rich.file.compress.program=zip
-# log4rich.file.compress.args=-9 -m
-#
-# 7-Zip (if installed):
-# log4rich.file.compress.program=7z
-# log4rich.file.compress.args=a -mx=9 -sdel
+# Examples for different compression programs:
+# For gzip with fast compression:
+#log4rich.file.compress.program=gzip
+#log4rich.file.compress.args=-1
 
-# ============================================
-# PATTERN EXAMPLES
-# ============================================
+# For bzip2 with maximum compression:
+#log4rich.file.compress.program=bzip2
+#log4rich.file.compress.args=-9
+
+# For xz with balanced compression:
+#log4rich.file.compress.program=xz
+#log4rich.file.compress.args=-6
+
+# For parallel gzip (pigz) with 4 threads:
+#log4rich.file.compress.program=pigz
+#log4rich.file.compress.args=-p 4
+
+# =============================================================================
+# LOGGER-SPECIFIC SETTINGS
+# =============================================================================
+
+# Set specific log levels for individual loggers
+# Format: log4rich.logger.{logger.name}={level}
+
+# Examples:
+# Set DEBUG level for all classes in com.myapp.service package
+#log4rich.logger.com.myapp.service=DEBUG
+
+# Set WARN level for all classes in com.myapp.dao package
+#log4rich.logger.com.myapp.dao=WARN
+
+# Set ERROR level for a specific class
+#log4rich.logger.com.myapp.service.UserService=ERROR
+
+# Set TRACE level for debugging a specific component
+#log4rich.logger.com.myapp.util.DatabaseManager=TRACE
+
+# =============================================================================
+# PATTERN FORMAT PLACEHOLDERS
+# =============================================================================
+
+# Available placeholders for console.pattern and file.pattern:
+# %level      - Log level (INFO, DEBUG, ERROR, etc.)
+# %date{fmt}  - Timestamp with optional format (default: yyyy-MM-dd HH:mm:ss)
+# %thread     - Thread name
+# %class      - Simple class name
+# %method     - Method name
+# %line       - Line number
+# %message    - Log message
+# %n          - Line separator (platform-specific)
 
 # Example patterns:
-# 
-# Simple pattern (no location info):
-# [%level] %date{HH:mm:ss} - %message%n
-#
-# Full debug pattern:
-# [%level] %date{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %class.%method(%file:%line) - %message%n
-#
-# Compact pattern with location:
-# %date{HH:mm:ss} %level %class:%line - %message%n
-#
-# Production pattern (balanced):
-# [%level] %date{yyyy-MM-dd HH:mm:ss} [%thread] %class.%method:%line - %message%n
+# Simple: %level %message%n
+# Detailed: [%level] %date{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %class.%method:%line - %message%n
+# JSON-like: {"level":"%level","time":"%date{yyyy-MM-dd'T'HH:mm:ss.SSS}","thread":"%thread","class":"%class","method":"%method","line":%line,"message":"%message"}%n
 
-# ============================================
-# EXAMPLE CONFIGURATIONS
-# ============================================
+# =============================================================================
+# PERFORMANCE TUNING
+# =============================================================================
 
-# Example 1: Development environment (verbose console, no file)
-# log4rich.rootLevel=DEBUG
-# log4rich.console.enabled=true
-# log4rich.file.enabled=false
-# log4rich.location.capture=true
+# For high-performance logging:
+# 1. Disable location capture: log4rich.location.capture=false
+# 2. Use larger buffer sizes: log4rich.file.bufferSize=32768
+# 3. Disable immediate flush: log4rich.file.immediateFlush=false
+# 4. Set appropriate log levels: log4rich.rootLevel=WARN
+# 5. Use faster compression: log4rich.file.compress.program=gzip with log4rich.file.compress.args=-1
 
-# Example 2: Production environment (minimal console, detailed file)
-# log4rich.rootLevel=INFO
-# log4rich.console.enabled=true
-# log4rich.console.level=WARN
-# log4rich.file.enabled=true
-# log4rich.file.level=INFO
-# log4rich.file.maxSize=50M
-# log4rich.file.maxBackups=30
-# log4rich.location.capture=false  # Disable for performance
-# log4rich.file.compress.program=xz
-# log4rich.file.compress.args=-6 -T0  # Good compression with multi-threading
-
-# Example 3: High-performance configuration
-# log4rich.rootLevel=WARN
-# log4rich.file.immediateFlush=false
-# log4rich.file.bufferSize=16384
-# log4rich.truncateLoggerNames=true
-# log4rich.location.capture=false
-# log4rich.file.compress.program=gzip
-# log4rich.file.compress.args=-1  # Fast compression
+# Example high-performance configuration:
+#log4rich.rootLevel=WARN
+#log4rich.location.capture=false
+#log4rich.file.bufferSize=32768
+#log4rich.file.immediateFlush=false
+#log4rich.file.compress.program=gzip
+#log4rich.file.compress.args=-1

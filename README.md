@@ -1,6 +1,6 @@
 # log4Rich - Lightweight Java Logging Framework
 
-A high-performance, lightweight logging framework for Java 17+ inspired by Log4j, designed for modern applications with emphasis on simplicity, thread safety, and configurability.
+A high-performance, lightweight logging framework for Java 8+ inspired by Log4j, designed for modern applications with emphasis on simplicity, thread safety, and configurability.
 
 ## Documentation
 
@@ -227,7 +227,7 @@ The complete JavaDoc API documentation is available online at:
 ## Building
 
 ### Prerequisites
-- Java 17 or higher
+- Java 8 or higher
 - Maven 3.6+
 
 ### Build Commands
@@ -268,6 +268,7 @@ log4Rich is designed for high-performance logging:
 - **Memory Efficient**: Minimal object allocation
 - **Async Friendly**: Non-blocking appender operations
 - **Configurable Buffering**: Tunable buffer sizes for optimal I/O
+- **Wide Java Support**: Compatible with Java 8 through Java 21+
 
 ### Performance Tips
 
@@ -418,6 +419,7 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 - Location information capture
 - Comprehensive test suite
 - Complete JavaDoc documentation
+- **Java 8+ compatibility** - Works with Java 8 through Java 21+
 
 ---
 

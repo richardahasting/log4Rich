@@ -36,6 +36,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class RollingFileAppenderTest {
     
+    // Helper method to replace String.repeat() which is Java 11+
+    private static String repeatString(String str, int count) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < count; i++) {
+            sb.append(str);
+        }
+        return sb.toString();
+    }
+    
     @TempDir
     Path tempDir;
     
@@ -106,7 +115,7 @@ public class RollingFileAppenderTest {
         for (int i = 0; i < 20; i++) {
             LoggingEvent event = new LoggingEvent(
                 LogLevel.INFO, 
-                "Message " + i + " - " + "x".repeat(50), // Make message long enough to trigger rollover
+                "Message " + i + " - " + repeatString("x", 50), // Make message long enough to trigger rollover
                 "TestLogger", 
                 null
             );
