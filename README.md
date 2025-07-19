@@ -716,15 +716,17 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ## Changelog
 
-### Version 1.0.1
+### Version 1.0.1 (July 19, 2025)
 - **SLF4J Migration Enhancements**: Complete {} placeholder support with 100% SLF4J compatibility
-- **Environment Variables**: Full support for 29 LOG4RICH_* environment variables
-- **Enhanced Error Messages**: Detailed validation with specific fix guidance
+- **Environment Variables**: Full support for 29 LOG4RICH_* environment variables for Docker/K8s
+- **Enhanced Error Messages**: Detailed validation with specific fix guidance and solutions
 - **Migration Utilities**: Comprehensive documentation and tools for SLF4J/Log4j migration
 - **Parameterized Logging**: All log levels support SLF4J-style parameter substitution
 - **Automatic Throwable Detection**: Smart exception handling in parameter arrays
+- **Convenience Methods**: Common message+argument+throwable patterns for easier migration
+- **GitHub Release**: Complete JAR distribution with migration examples and documentation
 
-### Version 1.0.0  
+### Version 1.0.0 (July 19, 2025)
 - **Initial Release**: Core logging functionality with console and file appenders
 - **Rolling File Support**: Size-based rotation with compression
 - **Runtime Configuration**: Dynamic configuration changes without restart
