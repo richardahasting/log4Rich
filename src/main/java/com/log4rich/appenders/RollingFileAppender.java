@@ -20,6 +20,7 @@ package com.log4rich.appenders;
 import com.log4rich.core.LogLevel;
 import com.log4rich.layouts.Layout;
 import com.log4rich.layouts.StandardLayout;
+import com.log4rich.util.AsyncCompressionManager;
 import com.log4rich.util.CompressionManager;
 import com.log4rich.util.LoggingEvent;
 import com.log4rich.util.ThreadSafeWriter;
@@ -54,6 +55,8 @@ public class RollingFileAppender implements Appender {
     private int maxBackups;
     private boolean compression;
     private CompressionManager compressionManager;
+    private AsyncCompressionManager asyncCompressionManager;
+    private boolean useAsyncCompression;
     private Charset encoding;
     private boolean immediateFlush;
     private int bufferSize;
@@ -96,6 +99,8 @@ public class RollingFileAppender implements Appender {
         this.maxBackups = DEFAULT_MAX_BACKUPS;
         this.compression = true;
         this.compressionManager = new CompressionManager();
+        this.asyncCompressionManager = new AsyncCompressionManager();
+        this.useAsyncCompression = true; // Default to async compression
         this.encoding = StandardCharsets.UTF_8;
         this.immediateFlush = true;
         this.bufferSize = DEFAULT_BUFFER_SIZE;
@@ -180,19 +185,66 @@ public class RollingFileAppender implements Appender {
             }
             
             // Compress the backup file if enabled
-            if (compression && compressionManager != null) {
-                try {
-                    File compressedFile = compressionManager.compressFile(backupFile);
-                    // If compression succeeded and created a new file, delete the original
+            if (compression) {
+                if (useAsyncCompression && asyncCompressionManager != null) {
+                    // Use adaptive async compression
+                    AsyncCompressionManager.AdaptiveCompressionResult result = 
+                        asyncCompressionManager.compressWithAdaptiveManagement(
+                            backupFile, maxFileSize, getName());
+                    
+                    // Handle adaptive file size increase if needed
+                    if (result.wasSizeIncreased()) {
+                        long oldSize = maxFileSize;
+                        maxFileSize = result.getNewMaxSize();
+                        
+                        // Log the adaptive change to the log file itself
+                        String adaptiveMsg = String.format(
+                            "\n*** ADAPTIVE FILE SIZE INCREASE ***\n" +
+                            "APPENDER: %s\n" +
+                            "OLD MAX SIZE: %s\n" +
+                            "NEW MAX SIZE: %s (DOUBLED DUE TO COMPRESSION OVERLOAD)\n" +
+                            "TIMESTAMP: %s\n" +
+                            "*** END ADAPTIVE CHANGE ***\n",
+                            getName(),
+                            formatFileSize(oldSize),
+                            formatFileSize(maxFileSize),
+                            new Date()
+                        );
+                        
+                        try {
+                            // Write adaptive message to new log file
+                            if (writer == null) {
+                                writer = new ThreadSafeWriter(file, encoding, immediateFlush, bufferSize);
+                            }
+                            writer.write(adaptiveMsg);
+                        } catch (IOException e) {
+                            System.err.println("Failed to write adaptive message to log: " + e.getMessage());
+                        }
+                    }
+                    
+                    // Clean up uncompressed file if compression succeeded
+                    File compressedFile = result.getCompressedFile();
                     if (compressedFile != backupFile && compressedFile.exists()) {
                         if (!backupFile.delete()) {
                             System.err.println("Warning: Failed to delete uncompressed backup file: " + 
                                              backupFile.getName());
                         }
                     }
-                } catch (Exception e) {
-                    System.err.println("Warning: Compression failed for " + backupFile.getName() + 
-                                     ": " + e.getMessage());
+                } else if (compressionManager != null) {
+                    // Use traditional blocking compression
+                    try {
+                        File compressedFile = compressionManager.compressFile(backupFile);
+                        // If compression succeeded and created a new file, delete the original
+                        if (compressedFile != backupFile && compressedFile.exists()) {
+                            if (!backupFile.delete()) {
+                                System.err.println("Warning: Failed to delete uncompressed backup file: " + 
+                                                 backupFile.getName());
+                            }
+                        }
+                    } catch (Exception e) {
+                        System.err.println("Warning: Compression failed for " + backupFile.getName() + 
+                                         ": " + e.getMessage());
+                    }
                 }
             }
         }
@@ -259,6 +311,11 @@ public class RollingFileAppender implements Appender {
                     System.err.println("Error closing file appender " + name + ": " + e.getMessage());
                 }
                 writer = null;
+            }
+            
+            // Shutdown async compression manager if used
+            if (asyncCompressionManager != null) {
+                asyncCompressionManager.shutdown();
             }
         } finally {
             lock.unlock();
@@ -539,5 +596,63 @@ public class RollingFileAppender implements Appender {
      */
     public CompressionManager getCompressionManager() {
         return compressionManager;
+    }
+    
+    /**
+     * Gets the async compression manager used for backup files.
+     * 
+     * @return the async compression manager
+     */
+    public AsyncCompressionManager getAsyncCompressionManager() {
+        return asyncCompressionManager;
+    }
+    
+    /**
+     * Sets the async compression manager for backup files.
+     * 
+     * @param asyncCompressionManager the async compression manager to use
+     */
+    public void setAsyncCompressionManager(AsyncCompressionManager asyncCompressionManager) {
+        this.asyncCompressionManager = asyncCompressionManager;
+    }
+    
+    /**
+     * Checks if async compression is enabled.
+     * 
+     * @return true if async compression is enabled, false for blocking compression
+     */
+    public boolean isUseAsyncCompression() {
+        return useAsyncCompression;
+    }
+    
+    /**
+     * Sets whether to use async compression or blocking compression.
+     * 
+     * @param useAsyncCompression true to use async compression, false for blocking
+     */
+    public void setUseAsyncCompression(boolean useAsyncCompression) {
+        this.useAsyncCompression = useAsyncCompression;
+    }
+    
+    /**
+     * Gets compression statistics if async compression is enabled.
+     * 
+     * @return compression statistics or null if async compression is not used
+     */
+    public AsyncCompressionManager.CompressionStatistics getCompressionStatistics() {
+        return asyncCompressionManager != null ? asyncCompressionManager.getStatistics() : null;
+    }
+    
+    /**
+     * Formats file size for human readable output.
+     * 
+     * @param bytes the size in bytes
+     * @return formatted size string
+     */
+    private String formatFileSize(long bytes) {
+        if (bytes < 1024) return bytes + " bytes";
+        if (bytes < 1024 * 1024) return String.format("%.1f KB", bytes / 1024.0);
+        if (bytes < 1024 * 1024 * 1024) return String.format("%.1f MB", bytes / (1024.0 * 1024.0));
+        return String.format("%.1f GB", bytes / (1024.0 * 1024.0 * 1024.0));
     }
 }

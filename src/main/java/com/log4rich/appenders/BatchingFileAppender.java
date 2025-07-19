@@ -303,30 +303,65 @@ public class BatchingFileAppender implements Appender {
     
     // Getters for monitoring and configuration
     
+    /**
+     * Gets the configured batch size.
+     * 
+     * @return the maximum number of events per batch
+     */
     public int getBatchSize() {
         return batchSize;
     }
     
+    /**
+     * Gets the configured batch time limit.
+     * 
+     * @return the maximum time to wait before flushing batch in milliseconds
+     */
     public long getBatchTimeMs() {
         return batchTimeMs;
     }
     
+    /**
+     * Gets the total number of batches written.
+     * 
+     * @return the number of batches that have been flushed to disk
+     */
     public long getBatchesWritten() {
         return batchesWritten.get();
     }
     
+    /**
+     * Gets the total number of events written.
+     * 
+     * @return the total number of log events processed by this appender
+     */
     public long getTotalEventsWritten() {
         return totalEventsWritten.get();
     }
     
+    /**
+     * Gets the current number of events in the buffer.
+     * 
+     * @return the number of events currently waiting to be flushed
+     */
     public int getCurrentBufferSize() {
         return batchBuffer.size();
     }
     
+    /**
+     * Gets detailed batch statistics for monitoring.
+     * 
+     * @return batch statistics including performance metrics
+     */
     public BatchBuffer.BatchStatistics getBatchStatistics() {
         return batchBuffer.getStatistics();
     }
     
+    /**
+     * Gets the time since the last flush operation.
+     * 
+     * @return time in milliseconds since the last batch was flushed
+     */
     public long getTimeSinceLastFlush() {
         return System.currentTimeMillis() - lastFlushTime;
     }

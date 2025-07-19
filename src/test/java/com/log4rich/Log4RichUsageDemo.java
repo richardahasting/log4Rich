@@ -23,6 +23,7 @@ import com.log4rich.appenders.MemoryMappedFileAppender;
 import com.log4rich.appenders.RollingFileAppender;
 import com.log4rich.core.LogLevel;
 import com.log4rich.core.Logger;
+import com.log4rich.util.AsyncCompressionManager;
 
 import java.io.File;
 import java.util.concurrent.ExecutorService;
@@ -36,9 +37,10 @@ import java.util.concurrent.TimeUnit;
  * 1. Basic logging with configuration
  * 2. High-performance memory-mapped file logging
  * 3. Ultra-high-throughput batch processing
- * 4. Multi-threaded logging scenarios
- * 5. Runtime configuration management
- * 6. Best practices for production use
+ * 4. Asynchronous compression with adaptive management
+ * 5. Multi-threaded logging scenarios
+ * 6. Runtime configuration management
+ * 7. Best practices for production use
  * 
  * Use this as a reference for implementing log4Rich in your applications.
  * 
@@ -56,6 +58,7 @@ public class Log4RichUsageDemo {
         // Demonstrate different usage patterns
         demonstrateBasicUsage();
         demonstrateHighPerformanceUsage();
+        demonstrateAsyncCompressionUsage();
         demonstrateMultiThreadedUsage();
         demonstrateRuntimeConfiguration();
         demonstrateProductionBestPractices();
@@ -170,10 +173,87 @@ public class Log4RichUsageDemo {
     }
     
     /**
+     * Demonstrates asynchronous compression with adaptive management.
+     */
+    private static void demonstrateAsyncCompressionUsage() throws Exception {
+        System.out.println("3. Asynchronous Compression with Adaptive Management");
+        System.out.println("===================================================");
+        
+        // Create rolling file appender with async compression
+        RollingFileAppender asyncAppender = new RollingFileAppender("demo-logs/async-compression.log");
+        asyncAppender.setName("AsyncCompressionDemo");
+        asyncAppender.setMaxFileSize(1024); // Very small for demo purposes
+        asyncAppender.setMaxBackups(5);
+        asyncAppender.setCompression(true);
+        asyncAppender.setUseAsyncCompression(true); // Enable async compression
+        
+        Logger asyncLogger = Log4Rich.getLogger("AsyncCompressionDemo");
+        asyncLogger.addAppender(asyncAppender);
+        
+        System.out.println("Writing messages to trigger file rollover and async compression...");
+        
+        // Generate enough messages to trigger multiple rollovers
+        for (int i = 0; i < 200; i++) {
+            asyncLogger.info("Async compression test message " + i + 
+                           " - this message will trigger file rollover and background compression " +
+                           "without blocking the logging thread, demonstrating the non-blocking nature " +
+                           "of the new asynchronous compression system");
+            
+            // Brief pause every 20 messages to allow compression processing
+            if (i % 20 == 0) {
+                Thread.sleep(50);
+                
+                // Show compression statistics
+                AsyncCompressionManager.CompressionStatistics stats = asyncAppender.getCompressionStatistics();
+                if (stats != null) {
+                    System.out.printf("  Compression stats: queue=%d/%d (%.1f%%), compressed=%d%n",
+                                    stats.getCurrentQueueSize(), stats.getMaxQueueSize(),
+                                    stats.getQueueUtilization() * 100, stats.getTotalCompressed());
+                }
+            }
+        }
+        
+        // Allow time for final compressions
+        Thread.sleep(1000);
+        
+        // Show final statistics
+        AsyncCompressionManager.CompressionStatistics finalStats = asyncAppender.getCompressionStatistics();
+        if (finalStats != null) {
+            System.out.println("\nFinal compression statistics:");
+            System.out.println("  Total compressed: " + finalStats.getTotalCompressed());
+            System.out.println("  Total failed: " + finalStats.getTotalFailed());
+            System.out.println("  Total blocked: " + finalStats.getTotalBlocked());
+            System.out.println("  Adaptive resizes: " + finalStats.getAdaptiveResizes());
+            System.out.println("  Queue utilization: " + String.format("%.1f%%", finalStats.getQueueUtilization() * 100));
+            
+            if (finalStats.getAdaptiveResizes() > 0) {
+                System.out.println("  ⚠️  ADAPTIVE BEHAVIOR TRIGGERED: File size limits were automatically doubled!");
+                System.out.println("     This happens when compression cannot keep pace with log rotation.");
+            }
+        }
+        
+        asyncAppender.close();
+        System.out.println("✓ Async compression demonstration complete\n");
+        
+        // Show created files
+        File demoDir = new File("demo-logs");
+        if (demoDir.exists()) {
+            File[] files = demoDir.listFiles((dir, name) -> name.startsWith("async-compression"));
+            if (files != null && files.length > 0) {
+                System.out.println("Created files:");
+                for (File file : files) {
+                    System.out.printf("  %s (%.1f KB)%n", file.getName(), file.length() / 1024.0);
+                }
+                System.out.println();
+            }
+        }
+    }
+    
+    /**
      * Demonstrates multi-threaded logging scenarios.
      */
     private static void demonstrateMultiThreadedUsage() throws Exception {
-        System.out.println("3. Multi-Threaded Logging");
+        System.out.println("4. Multi-Threaded Logging");
         System.out.println("=========================");
         
         // Create batch appender for best multi-threaded performance
@@ -239,7 +319,7 @@ public class Log4RichUsageDemo {
      * Demonstrates runtime configuration management.
      */
     private static void demonstrateRuntimeConfiguration() {
-        System.out.println("4. Runtime Configuration");
+        System.out.println("5. Runtime Configuration");
         System.out.println("========================");
         
         Logger configLogger = Log4Rich.getLogger("ConfigDemo");
@@ -277,7 +357,7 @@ public class Log4RichUsageDemo {
      * Demonstrates production best practices.
      */
     private static void demonstrateProductionBestPractices() {
-        System.out.println("5. Production Best Practices");
+        System.out.println("6. Production Best Practices");
         System.out.println("============================");
         
         // 1. Use class-based loggers
@@ -289,6 +369,8 @@ public class Log4RichUsageDemo {
         System.out.println("- Use WARN or ERROR level: Log4Rich.setRootLevel(LogLevel.WARN)");
         System.out.println("- Enable batch processing for high throughput");
         System.out.println("- Use memory-mapped files for low latency");
+        System.out.println("- Enable async compression: appender.setUseAsyncCompression(true)");
+        System.out.println("- Monitor compression queue utilization in high-volume scenarios");
         
         // 3. Demonstrate proper exception logging
         try {

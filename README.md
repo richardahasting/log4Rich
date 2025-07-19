@@ -14,6 +14,8 @@ A blazing-fast logging framework for Java 8+ that delivers up to **2.3 million m
 - 🧠 **Memory-Mapped I/O**: 5.4x faster logging with zero context switching
 - ⚡ **Batch Processing**: 23x performance improvement in multi-threaded scenarios
 - 🔥 **Zero-Allocation Mode**: Thread-local object pools eliminate GC pressure
+- ⚡ **Asynchronous Logging**: Lock-free ring buffers with sub-microsecond latency
+- 🗜️ **Async Compression**: Non-blocking compression with adaptive file size management
 - ✅ **7 Log Levels**: TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF
 - ✅ **Thread-Safe**: Built for multi-CPU environments with concurrent logging
 - ✅ **Console Output**: Configurable STDOUT/STDERR with custom patterns
@@ -86,6 +88,12 @@ log4rich.file.maxBackups=10
 log4rich.file.compress=true
 log4rich.file.compress.program=gzip
 log4rich.file.compress.args=
+log4rich.file.compress.async=true
+
+# Async compression settings
+log4rich.file.compress.async.queueSize=100
+log4rich.file.compress.async.threads=2
+log4rich.file.compress.async.timeout=30000
 
 # Location capture
 log4rich.location.capture=true
@@ -175,6 +183,12 @@ log4Rich supports the following pattern placeholders:
 - `log4rich.file.compress`: Enable compression (true/false)
 - `log4rich.file.compress.program`: Compression program (gzip, bzip2, xz, zip, 7z)
 - `log4rich.file.compress.args`: Additional compression arguments
+- `log4rich.file.compress.async`: Enable asynchronous compression (true/false, default: true)
+
+#### Async Compression Settings
+- `log4rich.file.compress.async.queueSize`: Maximum compression queue size (default: 100)
+- `log4rich.file.compress.async.threads`: Number of compression threads (default: 2)
+- `log4rich.file.compress.async.timeout`: Compression timeout in milliseconds (default: 30000)
 
 #### Logger-Specific Settings
 - `log4rich.logger.{name}`: Set level for specific logger
@@ -198,6 +212,70 @@ RollingFileAppender fileAppender = Log4Rich.createRollingFileAppender(
 Logger logger = Log4Rich.getLogger("com.myapp.custom");
 logger.addAppender(consoleAppender);
 logger.addAppender(fileAppender);
+```
+
+### Asynchronous Logging
+
+```java
+import com.log4rich.core.AsyncLogger;
+import com.log4rich.util.OverflowStrategy;
+
+// Create async logger with custom settings
+AsyncLogger asyncLogger = new AsyncLogger(
+    "HighThroughput",
+    65536,                          // Buffer size (power of 2)
+    OverflowStrategy.DROP_OLDEST,   // Overflow strategy  
+    5000                            // Shutdown timeout
+);
+
+// Add appenders
+asyncLogger.addAppender(consoleAppender);
+asyncLogger.addAppender(fileAppender);
+
+// Log asynchronously (sub-microsecond latency)
+asyncLogger.info("High-performance async message");
+
+// Get performance statistics
+AsyncLogger.AsyncLoggerStatistics stats = asyncLogger.getStatistics();
+System.out.println("Events published: " + stats.getEventsPublished());
+System.out.println("Events processed: " + stats.getEventsProcessed());
+System.out.println("Drop rate: " + stats.getDropRate() * 100 + "%");
+
+// Graceful shutdown
+asyncLogger.shutdown();
+```
+
+### High-Performance Features
+
+```java
+import com.log4rich.appenders.*;
+
+// Memory-mapped file appender (5.4x faster)
+MemoryMappedFileAppender mmapAppender = new MemoryMappedFileAppender(
+    "HighSpeed",
+    "logs/highspeed.log",
+    16 * 1024 * 1024,  // 16MB mapping
+    false,             // Don't force on every write
+    1000              // Force every 1 second
+);
+
+// Batch processing appender (23x faster multi-threaded)
+BatchingFileAppender batchAppender = new BatchingFileAppender(
+    "BatchProcessor",
+    "logs/batch.log",
+    1000,  // Batch size
+    100    // Batch timeout (ms)
+);
+
+// Async compression for non-blocking file rotation
+RollingFileAppender rollingAppender = new RollingFileAppender("logs/rolling.log");
+rollingAppender.setUseAsyncCompression(true);
+rollingAppender.setMaxFileSize(100 * 1024 * 1024); // 100MB
+
+// Get compression statistics
+AsyncCompressionManager.CompressionStatistics compStats = 
+    rollingAppender.getCompressionStatistics();
+System.out.println("Compression queue: " + compStats.getCurrentQueueSize());
 ```
 
 ### Level Checking
@@ -408,7 +486,9 @@ mvn test -Dtest=*StressTest
 
 ## Compression Support
 
-log4Rich supports multiple compression programs:
+log4Rich features advanced compression capabilities with both traditional blocking compression and high-performance asynchronous compression.
+
+### Supported Compression Programs
 
 | Program | Extension | Description |
 |---------|-----------|-------------|
@@ -418,12 +498,56 @@ log4Rich supports multiple compression programs:
 | zip | `.zip` | Cross-platform compatibility |
 | 7z | `.7z` | High compression ratio |
 
-### Custom Compression
+### Asynchronous Compression with Adaptive Management
+
+**⚠️ IMPORTANT**: log4Rich includes intelligent adaptive compression management to prevent system overload.
+
+When log rotation occurs faster than compression can keep pace:
+
+1. **Detection**: Monitors compression queue utilization
+2. **Intervention**: Temporarily blocks to prevent queue overflow
+3. **Adaptation**: Automatically **DOUBLES** the file size limit
+4. **Notification**: Logs the change in **CAPITAL LETTERS** in the log file:
+
+```
+*** ADAPTIVE FILE SIZE INCREASE ***
+APPENDER: MyFileAppender
+OLD MAX SIZE: 10.0 MB
+NEW MAX SIZE: 20.0 MB (DOUBLED DUE TO COMPRESSION OVERLOAD)
+TIMESTAMP: 2024-01-15 14:30:45
+*** END ADAPTIVE CHANGE ***
+```
+
+This prevents:
+- Memory exhaustion from unbounded compression queues
+- Application blocking during high-volume logging
+- System instability from compression overload
+
+### Compression Performance Modes
+
+#### Asynchronous Mode (Default)
+- **Non-blocking**: Compression occurs in background threads
+- **High throughput**: Logging continues while compression processes
+- **Adaptive management**: Automatically handles overload conditions
+- **Queue monitoring**: Tracks compression queue utilization
+
+#### Blocking Mode (Legacy)
+- **Guaranteed compression**: Files compressed before returning
+- **Simpler behavior**: Traditional synchronous operation
+- **Potential blocking**: May pause logging during compression
+
+### Custom Compression Configuration
 
 ```properties
-# Custom compression program
+# High-performance parallel compression
 log4rich.file.compress.program=pigz
 log4rich.file.compress.args=-9 -p 4
+
+# Async compression tuning
+log4rich.file.compress.async=true
+log4rich.file.compress.async.queueSize=50
+log4rich.file.compress.async.threads=4
+log4rich.file.compress.async.timeout=60000
 ```
 
 ## Troubleshooting
