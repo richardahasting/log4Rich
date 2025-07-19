@@ -20,6 +20,7 @@ package com.log4rich.config;
 import com.log4rich.core.LogLevel;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -88,8 +89,10 @@ public class Configuration {
     /**
      * Creates a new Configuration with the specified properties.
      * Default values are set first, then overridden with provided properties.
+     * Configuration is validated and any errors are reported.
      * 
      * @param properties the properties to use for configuration
+     * @throws ConfigurationException if there are validation errors
      */
     public Configuration(Properties properties) {
         this.properties = new Properties();
@@ -97,6 +100,21 @@ public class Configuration {
         setDefaults();
         // Override defaults with provided properties
         this.properties.putAll(properties);
+        
+        // Validate configuration and report errors
+        List<ConfigurationValidator.ConfigurationError> errors = ConfigurationValidator.validate(this.properties);
+        if (!errors.isEmpty()) {
+            StringBuilder errorMessage = new StringBuilder();
+            errorMessage.append("Configuration validation failed with ").append(errors.size()).append(" error(s):\n\n");
+            
+            for (ConfigurationValidator.ConfigurationError error : errors) {
+                errorMessage.append(error.getFormattedMessage()).append("\n\n");
+            }
+            
+            errorMessage.append("Please fix these configuration errors and restart the application.");
+            throw new ConfigurationException(errorMessage.toString(), errors);
+        }
+        
         loadLoggerLevels();
     }
     
@@ -583,9 +601,16 @@ public class Configuration {
         }
         
         try {
-            return Long.parseLong(str.trim()) * multiplier;
+            long value = Long.parseLong(str.trim());
+            if (value <= 0) {
+                System.err.println("ERROR: Invalid size '" + sizeStr + "' - size must be positive. Using default " + (DEFAULT_MAPPED_SIZE / (1024 * 1024)) + "M");
+                System.err.println("SOLUTION: Use a positive size like: 10M, 500K, 1G");
+                return DEFAULT_MAPPED_SIZE;
+            }
+            return value * multiplier;
         } catch (NumberFormatException e) {
-            System.err.println("Invalid size format: " + sizeStr + ", using default");
+            System.err.println("ERROR: Invalid size format '" + sizeStr + "' - expected format like 10M, 500K, 1G. Using default " + (DEFAULT_MAPPED_SIZE / (1024 * 1024)) + "M");
+            System.err.println("SOLUTION: Valid examples: log4rich.file.maxSize=10M, log4rich.performance.mappedSize=64M");
             return DEFAULT_MAPPED_SIZE;
         }
     }

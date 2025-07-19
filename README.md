@@ -16,6 +16,9 @@ A blazing-fast logging framework for Java 8+ that delivers up to **2.3 million m
 - 🔥 **Zero-Allocation Mode**: Thread-local object pools eliminate GC pressure
 - ⚡ **Asynchronous Logging**: Lock-free ring buffers with sub-microsecond latency
 - 🗜️ **Async Compression**: Non-blocking compression with adaptive file size management
+- 🔧 **SLF4J-Style Placeholders**: Easy migration with {} parameter substitution
+- 🌍 **Environment Variables**: Override any configuration with LOG4RICH_* variables
+- 📝 **Enhanced Error Messages**: Detailed validation with specific fix guidance
 - ✅ **7 Log Levels**: TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF
 - ✅ **Thread-Safe**: Built for multi-CPU environments with concurrent logging
 - ✅ **Console Output**: Configurable STDOUT/STDERR with custom patterns
@@ -56,10 +59,20 @@ public class MyApplication {
     private static final Logger logger = Log4Rich.getLogger(MyApplication.class);
     
     public static void main(String[] args) {
+        // Traditional logging
         logger.info("Application starting...");
         logger.debug("Debug information");
         logger.warn("Warning message");
         logger.error("Error occurred", new Exception("Sample exception"));
+        
+        // SLF4J-style placeholder logging (new in v1.0.0)
+        String user = "john_doe";
+        int attempts = 3;
+        logger.info("User {} failed login after {} attempts", user, attempts);
+        logger.warn("Processing {} records in {} ms", 1000, 245);
+        
+        // Mixed placeholders with exceptions
+        logger.error("Failed to process user {} data", user, new RuntimeException("Database error"));
     }
 }
 ```
@@ -140,6 +153,31 @@ log4Rich searches for configuration files in the following order:
    - `../config/log4Rich.config`
    - `../conf/log4Rich.config`
 
+### Environment Variable Configuration
+
+**New in v1.0.0**: Override any configuration property using environment variables with the `LOG4RICH_` prefix:
+
+```bash
+# Set via environment variables
+export LOG4RICH_ROOT_LEVEL=DEBUG
+export LOG4RICH_CONSOLE_ENABLED=false
+export LOG4RICH_FILE_PATH=/var/log/myapp.log
+export LOG4RICH_FILE_MAX_SIZE=50M
+
+# Run your application - config will be automatically overridden
+java -jar myapp.jar
+```
+
+**Supported Environment Variables**:
+- `LOG4RICH_ROOT_LEVEL` → `log4rich.rootLevel`
+- `LOG4RICH_CONSOLE_ENABLED` → `log4rich.console.enabled`
+- `LOG4RICH_CONSOLE_TARGET` → `log4rich.console.target`
+- `LOG4RICH_FILE_PATH` → `log4rich.file.path`
+- `LOG4RICH_FILE_MAX_SIZE` → `log4rich.file.maxSize`
+- `LOG4RICH_FILE_MAX_BACKUPS` → `log4rich.file.maxBackups`
+- `LOG4RICH_LOCATION_CAPTURE` → `log4rich.location.capture`
+- And many more... (see ConfigLoader.getSupportedEnvironmentVariables() for complete list)
+
 ### Pattern Format
 
 log4Rich supports the following pattern placeholders:
@@ -193,7 +231,82 @@ log4Rich supports the following pattern placeholders:
 #### Logger-Specific Settings
 - `log4rich.logger.{name}`: Set level for specific logger
 
+## Migration from SLF4J/Log4j
+
+**New in v1.0.0**: log4Rich now supports SLF4J-style placeholder logging for easy migration!
+
+### SLF4J Compatibility
+
+log4Rich supports the same `{}` placeholder syntax as SLF4J:
+
+```java
+// SLF4J code - works as-is in log4Rich!
+logger.info("User {} logged in from {}", username, ipAddress);
+logger.warn("Request {} took {} ms", requestId, duration);
+logger.error("Failed to process order {}", orderId, exception);
+
+// Array parameters (SLF4J compatible)
+String[] items = {"apple", "banana", "cherry"};
+logger.info("Processing items: {}", (Object) items);
+
+// Automatic exception detection
+logger.error("Database connection failed for user {}", userId, new SQLException("Connection timeout"));
+```
+
+### Migration Checklist
+
+1. **Replace Logger Import**:
+   ```java
+   // Old SLF4J import
+   import org.slf4j.Logger;
+   import org.slf4j.LoggerFactory;
+   
+   // New log4Rich import
+   import com.log4rich.core.Logger;
+   import com.log4rich.Log4Rich;
+   ```
+
+2. **Update Logger Creation**:
+   ```java
+   // Old SLF4J way
+   private static final Logger logger = LoggerFactory.getLogger(MyClass.class);
+   
+   // New log4Rich way
+   private static final Logger logger = Log4Rich.getLogger(MyClass.class);
+   ```
+
+3. **Configuration Migration**:
+   - Use environment variables for quick overrides
+   - Convert logback.xml/log4j.properties to log4Rich.config format
+   - Take advantage of enhanced error messages for validation
+
+4. **Performance Benefits**:
+   - Enable memory-mapped files for 5.4x performance boost
+   - Use batch processing for 23x multi-threaded improvement
+   - Leverage async compression for non-blocking file rotation
+
 ## Advanced Usage
+
+### SLF4J-Style Parameter Logging
+
+```java
+Logger logger = Log4Rich.getLogger(MyClass.class);
+
+// All SLF4J patterns work identically
+logger.debug("Processing request {} with {} parameters", requestId, paramCount);
+logger.info("User {} performed action '{}' at {}", username, action, timestamp);
+logger.warn("Cache miss for key '{}', fallback took {} ms", cacheKey, fallbackTime);
+
+// Exception handling (last parameter automatically detected)
+logger.error("Failed to save user {} profile", username, new DatabaseException("Connection lost"));
+
+// Complex parameter types
+logger.info("Processed {} orders totaling ${}", orders.size(), total.setScale(2, RoundingMode.HALF_UP));
+
+// Array and object logging
+Object[] metrics = {cpu, memory, disk};
+logger.debug("System metrics: {}", (Object) metrics);
+```
 
 ### Custom Appenders
 
@@ -603,21 +716,18 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ## Changelog
 
-### Version 1.1.0 (Upcoming)
-- **Memory-Mapped File Appender**: 5.4x performance improvement
-- **Batch Processing**: Up to 23x faster in multi-threaded scenarios
-- **Zero-Allocation Mode**: Thread-local object pools for GC-free operation
-- **Performance Benchmarks**: Comprehensive performance testing suite
-
 ### Version 1.0.0
-- Initial release
-- Core logging functionality
-- Console and file appenders
-- Rolling file support with compression
-- Runtime configuration management
-- Location information capture
-- Comprehensive test suite
-- Complete JavaDoc documentation
+- **Initial Release**: Core logging functionality with console and file appenders
+- **Rolling File Support**: Size-based rotation with compression
+- **Runtime Configuration**: Dynamic configuration changes without restart
+- **Location Information**: Automatic capture of class, method, and line numbers
+- **Performance Features**: Memory-mapped files (5.4x faster), batch processing (23x faster), zero-allocation mode
+- **Asynchronous Features**: Lock-free ring buffers, async compression with adaptive management
+- **SLF4J Compatibility**: {} placeholder support for easy migration from SLF4J/Log4j
+- **Environment Variables**: Override any configuration with LOG4RICH_* environment variables  
+- **Enhanced Validation**: Detailed error messages with specific fix guidance
+- **Comprehensive Testing**: Full test suite with performance benchmarks
+- **Complete Documentation**: JavaDoc API reference and usage examples
 - **Java 8+ compatibility** - Works with Java 8 through Java 21+
 
 ---

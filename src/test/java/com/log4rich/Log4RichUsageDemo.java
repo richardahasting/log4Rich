@@ -35,12 +35,14 @@ import java.util.concurrent.TimeUnit;
  * 
  * This class demonstrates:
  * 1. Basic logging with configuration
- * 2. High-performance memory-mapped file logging
- * 3. Ultra-high-throughput batch processing
- * 4. Asynchronous compression with adaptive management
- * 5. Multi-threaded logging scenarios
- * 6. Runtime configuration management
- * 7. Best practices for production use
+ * 2. SLF4J-style placeholder logging (NEW in v1.0.0)
+ * 3. High-performance memory-mapped file logging
+ * 4. Ultra-high-throughput batch processing
+ * 5. Asynchronous compression with adaptive management
+ * 6. Multi-threaded logging scenarios
+ * 7. Runtime configuration management
+ * 8. Environment variable configuration
+ * 9. Best practices for production use
  * 
  * Use this as a reference for implementing log4Rich in your applications.
  * 
@@ -57,6 +59,8 @@ public class Log4RichUsageDemo {
         
         // Demonstrate different usage patterns
         demonstrateBasicUsage();
+        demonstrateSLF4JStyleLogging();
+        demonstrateEnvironmentVariables();
         demonstrateHighPerformanceUsage();
         demonstrateAsyncCompressionUsage();
         demonstrateMultiThreadedUsage();
@@ -94,10 +98,86 @@ public class Log4RichUsageDemo {
     }
     
     /**
+     * Demonstrates SLF4J-style placeholder logging (NEW in v1.0.0).
+     */
+    private static void demonstrateSLF4JStyleLogging() {
+        System.out.println("2. SLF4J-Style Placeholder Logging (NEW!)");
+        System.out.println("==========================================");
+        
+        Logger slf4jLogger = Log4Rich.getLogger("SLF4JStyleDemo");
+        
+        // Basic placeholder logging - identical to SLF4J syntax
+        String username = "john_doe";
+        int loginAttempts = 3;
+        slf4jLogger.info("User {} failed login after {} attempts", username, loginAttempts);
+        
+        // Performance metrics logging
+        long duration = 245;
+        int recordCount = 1000;
+        slf4jLogger.warn("Processing {} records took {} ms (threshold: {} ms)", 
+                        recordCount, duration, 200);
+        
+        // Complex object logging
+        Double price = 129.99;
+        String productId = "WIDGET-ABC123";
+        slf4jLogger.info("Product {} priced at ${}", productId, price);
+        
+        // Array logging (SLF4J compatible)
+        String[] categories = {"electronics", "widgets", "gadgets"};
+        slf4jLogger.debug("Product belongs to categories: {}", (Object) categories);
+        
+        // Exception with placeholders (automatic exception detection)
+        String orderId = "ORDER-98765";
+        slf4jLogger.error("Failed to process order {} for user {}", 
+                         orderId, username, new RuntimeException("Payment gateway timeout"));
+        
+        // Mixed traditional and placeholder styles
+        slf4jLogger.info("Order {} summary: {} items, total ${} (user: {})", 
+                        orderId, 5, 299.95, username);
+        
+        // Multiple parameter types
+        java.time.LocalDateTime timestamp = java.time.LocalDateTime.now();
+        slf4jLogger.info("User {} logged in at {} from IP {}", 
+                        username, timestamp, "192.168.1.100");
+        
+        System.out.println("✓ SLF4J-style logging demonstration complete\n");
+    }
+    
+    /**
+     * Demonstrates environment variable configuration (NEW in v1.0.0).
+     */
+    private static void demonstrateEnvironmentVariables() {
+        System.out.println("3. Environment Variable Configuration (NEW!)");
+        System.out.println("============================================");
+        
+        System.out.println("Environment variable examples:");
+        System.out.println("Set LOG4RICH_ROOT_LEVEL=DEBUG to override log level");
+        System.out.println("Set LOG4RICH_FILE_PATH=/custom/path.log to override file path");
+        System.out.println("Set LOG4RICH_CONSOLE_ENABLED=false to disable console");
+        System.out.println("Set LOG4RICH_LOCATION_CAPTURE=false for production");
+        
+        // Show which environment variables are supported
+        String[] supportedVars = com.log4rich.config.ConfigLoader.getSupportedEnvironmentVariables();
+        System.out.println("\nSupported environment variables (" + supportedVars.length + " total):");
+        for (int i = 0; i < Math.min(10, supportedVars.length); i++) {
+            System.out.println("  " + supportedVars[i]);
+        }
+        if (supportedVars.length > 10) {
+            System.out.println("  ... and " + (supportedVars.length - 10) + " more");
+        }
+        
+        Logger envLogger = Log4Rich.getLogger("EnvironmentDemo");
+        envLogger.info("Environment variable configuration allows easy Docker/K8s deployment");
+        envLogger.info("Example: docker run -e LOG4RICH_ROOT_LEVEL=WARN myapp");
+        
+        System.out.println("✓ Environment variable demonstration complete\n");
+    }
+    
+    /**
      * Demonstrates high-performance features: memory-mapped files and batch processing.
      */
     private static void demonstrateHighPerformanceUsage() throws Exception {
-        System.out.println("2. High-Performance Features");
+        System.out.println("4. High-Performance Features");
         System.out.println("============================");
         
         // Create loggers for performance comparison
@@ -176,7 +256,7 @@ public class Log4RichUsageDemo {
      * Demonstrates asynchronous compression with adaptive management.
      */
     private static void demonstrateAsyncCompressionUsage() throws Exception {
-        System.out.println("3. Asynchronous Compression with Adaptive Management");
+        System.out.println("5. Asynchronous Compression with Adaptive Management");
         System.out.println("===================================================");
         
         // Create rolling file appender with async compression
@@ -253,7 +333,7 @@ public class Log4RichUsageDemo {
      * Demonstrates multi-threaded logging scenarios.
      */
     private static void demonstrateMultiThreadedUsage() throws Exception {
-        System.out.println("4. Multi-Threaded Logging");
+        System.out.println("6. Multi-Threaded Logging");
         System.out.println("=========================");
         
         // Create batch appender for best multi-threaded performance
@@ -319,7 +399,7 @@ public class Log4RichUsageDemo {
      * Demonstrates runtime configuration management.
      */
     private static void demonstrateRuntimeConfiguration() {
-        System.out.println("5. Runtime Configuration");
+        System.out.println("7. Runtime Configuration");
         System.out.println("========================");
         
         Logger configLogger = Log4Rich.getLogger("ConfigDemo");
@@ -357,7 +437,7 @@ public class Log4RichUsageDemo {
      * Demonstrates production best practices.
      */
     private static void demonstrateProductionBestPractices() {
-        System.out.println("6. Production Best Practices");
+        System.out.println("8. Production Best Practices");
         System.out.println("============================");
         
         // 1. Use class-based loggers
@@ -383,16 +463,35 @@ public class Log4RichUsageDemo {
             prodLogger.error("Business operation failed: customer_id=12345, operation=update_profile", e);
         }
         
-        // 4. Structured logging approach
-        prodLogger.info("User action: user_id=67890, action=login, ip=192.168.1.100, duration_ms=150");
-        prodLogger.warn("Performance warning: operation=database_query, duration_ms=5000, threshold_ms=3000");
+        // 4. Structured logging approach (using SLF4J-style placeholders)
+        String userId = "67890";
+        String action = "login";
+        String ipAddress = "192.168.1.100";
+        int durationMs = 150;
+        prodLogger.info("User action: user_id={}, action={}, ip={}, duration_ms={}", 
+                       userId, action, ipAddress, durationMs);
         
-        // 5. Use appropriate levels
+        // Performance monitoring with placeholders
+        String operation = "database_query";
+        int queryDuration = 5000;
+        int threshold = 3000;
+        prodLogger.warn("Performance warning: operation={}, duration_ms={}, threshold_ms={}", 
+                       operation, queryDuration, threshold);
+        
+        // 5. Use appropriate levels with SLF4J-style placeholders
+        String orderId = "98765";
         prodLogger.trace("Entering method processOrder()"); // Very detailed, usually disabled
-        prodLogger.debug("Order validation passed: order_id=98765"); // Development debugging
-        prodLogger.info("Order processed successfully: order_id=98765, amount=$125.99"); // Important events
-        prodLogger.warn("Inventory low: product_id=ABC123, quantity=5, threshold=10"); // Potential issues
-        prodLogger.error("Payment processing failed: order_id=98765, gateway=stripe"); // Errors requiring attention
+        prodLogger.debug("Order validation passed: order_id={}", orderId); // Development debugging
+        prodLogger.info("Order processed successfully: order_id={}, amount=${}", orderId, 125.99); // Important events
+        
+        String productId = "ABC123";
+        int quantity = 5;
+        int inventoryThreshold = 10;
+        prodLogger.warn("Inventory low: product_id={}, quantity={}, threshold={}", 
+                       productId, quantity, inventoryThreshold); // Potential issues
+        
+        String gateway = "stripe";
+        prodLogger.error("Payment processing failed: order_id={}, gateway={}", orderId, gateway); // Errors requiring attention
         prodLogger.fatal("Database connection pool exhausted"); // Critical system failures
         
         System.out.println("✓ Production best practices demonstration complete\n");

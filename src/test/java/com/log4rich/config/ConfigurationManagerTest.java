@@ -48,6 +48,7 @@ public class ConfigurationManagerTest {
         Properties props = new Properties();
         props.setProperty("log4rich.console.enabled", "false");
         props.setProperty("log4rich.file.enabled", "false");
+        props.setProperty("log4rich.file.path", "/tmp/test.log"); // Use valid path for tests
         Configuration config = new Configuration(props);
         ConfigurationManager.initialize(config);
     }
@@ -271,6 +272,7 @@ public class ConfigurationManagerTest {
             writer.write("log4rich.rootLevel=ERROR\n");
             writer.write("log4rich.console.enabled=true\n");
             writer.write("log4rich.file.enabled=false\n");
+            writer.write("log4rich.file.path=" + tempDir.resolve("reload.log").toString() + "\n");
         }
         
         // Reload configuration

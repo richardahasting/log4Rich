@@ -43,6 +43,7 @@ public class ConfigurationTest {
         testProperties.setProperty("log4rich.rootLevel", "DEBUG");
         testProperties.setProperty("log4rich.console.enabled", "true");
         testProperties.setProperty("log4rich.file.enabled", "false");
+        testProperties.setProperty("log4rich.file.path", "/tmp/test.log"); // Use valid path for tests
         testProperties.setProperty("log4rich.file.maxSize", "50M");
         testProperties.setProperty("log4rich.file.maxBackups", "20");
         testProperties.setProperty("log4rich.file.compress", "true");
@@ -54,20 +55,31 @@ public class ConfigurationTest {
     
     @Test
     void testDefaultConfiguration() {
-        Configuration config = new Configuration();
+        // Create logs directory for default configuration to pass validation
+        File logsDir = new File("logs");
+        boolean dirCreated = logsDir.mkdirs();
         
-        assertEquals(LogLevel.INFO, config.getRootLevel());
-        assertTrue(config.isConsoleEnabled());
-        assertTrue(config.isFileEnabled());
-        assertEquals("STDOUT", config.getConsoleTarget());
-        assertEquals("logs/application.log", config.getFilePath());
-        assertEquals("10M", config.getMaxSize());
-        assertEquals(10, config.getMaxBackups());
-        assertTrue(config.isCompressionEnabled());
-        assertEquals("gzip", config.getCompressionProgram());
-        assertEquals("", config.getCompressionArgs());
-        assertTrue(config.isLocationCapture());
-        assertEquals(5000, config.getLockTimeout());
+        try {
+            Configuration config = new Configuration();
+            
+            assertEquals(LogLevel.INFO, config.getRootLevel());
+            assertTrue(config.isConsoleEnabled());
+            assertTrue(config.isFileEnabled());
+            assertEquals("STDOUT", config.getConsoleTarget());
+            assertEquals("logs/application.log", config.getFilePath());
+            assertEquals("10M", config.getMaxSize());
+            assertEquals(10, config.getMaxBackups());
+            assertTrue(config.isCompressionEnabled());
+            assertEquals("gzip", config.getCompressionProgram());
+            assertEquals("", config.getCompressionArgs());
+            assertTrue(config.isLocationCapture());
+            assertEquals(5000, config.getLockTimeout());
+        } finally {
+            // Clean up created directory if we created it
+            if (dirCreated && logsDir.exists()) {
+                logsDir.delete();
+            }
+        }
     }
     
     @Test
@@ -98,6 +110,7 @@ public class ConfigurationTest {
     void testLogLevelFallback() {
         Properties props = new Properties();
         props.setProperty("log4rich.rootLevel", "ERROR");
+        props.setProperty("log4rich.file.path", "/tmp/test.log"); // Use valid path
         // Don't set console.level or file.level
         
         Configuration config = new Configuration(props);
@@ -113,6 +126,7 @@ public class ConfigurationTest {
         props.setProperty("log4rich.rootLevel", "INFO");
         props.setProperty("log4rich.console.level", "DEBUG");
         props.setProperty("log4rich.file.level", "WARN");
+        props.setProperty("log4rich.file.path", "/tmp/test.log"); // Use valid path
         
         Configuration config = new Configuration(props);
         
@@ -125,11 +139,12 @@ public class ConfigurationTest {
     void testInvalidLogLevel() {
         Properties props = new Properties();
         props.setProperty("log4rich.rootLevel", "INVALID");
+        props.setProperty("log4rich.file.path", "/tmp/test.log"); // Use valid path
         
-        Configuration config = new Configuration(props);
-        
-        // Should fall back to INFO for invalid levels
-        assertEquals(LogLevel.INFO, config.getRootLevel());
+        // Should now throw ConfigurationException for invalid levels
+        assertThrows(ConfigurationException.class, () -> {
+            new Configuration(props);
+        });
     }
     
     @Test

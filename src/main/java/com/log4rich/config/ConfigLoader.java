@@ -125,7 +125,24 @@ public class ConfigLoader {
             System.out.println("log4Rich: No configuration file found, using defaults");
         }
         
-        cachedConfig = new Configuration(properties);
+        // 7. Apply environment variable overrides
+        applyEnvironmentVariableOverrides(properties);
+        
+        try {
+            cachedConfig = new Configuration(properties);
+        } catch (ConfigurationException e) {
+            System.err.println("\n" + "=".repeat(80));
+            System.err.println("log4Rich Configuration Error");
+            System.err.println("=".repeat(80));
+            System.err.println(e.getMessage());
+            System.err.println("=".repeat(80) + "\n");
+            
+            // For invalid configurations, fall back to defaults
+            System.err.println("Falling back to default configuration to allow application startup.");
+            System.err.println("Please fix the configuration errors and restart for changes to take effect.\n");
+            cachedConfig = new Configuration(); // Use defaults
+        }
+        
         return cachedConfig;
     }
     
@@ -156,7 +173,18 @@ public class ConfigLoader {
         Properties properties = new Properties();
         loadPropertiesFromFile(properties, file);
         
-        return new Configuration(properties);
+        // Apply environment variable overrides for explicit file loading too
+        applyEnvironmentVariableOverrides(properties);
+        
+        try {
+            return new Configuration(properties);
+        } catch (ConfigurationException e) {
+            // For explicit file loading, we want to propagate the error with file context
+            throw new ConfigurationException(
+                "Configuration validation failed for file: " + file.getAbsolutePath() + "\n\n" + e.getMessage(),
+                e.getErrors()
+            );
+        }
     }
     
     /**
@@ -243,6 +271,125 @@ public class ConfigLoader {
             "Conf directory: ./conf/" + CONFIG_FILENAME,
             "Parent config directory: ../config/" + CONFIG_FILENAME,
             "Parent conf directory: ../conf/" + CONFIG_FILENAME
+        };
+    }
+    
+    /**
+     * Applies environment variable overrides to the configuration properties.
+     * Environment variables follow the pattern: LOG4RICH_* where dots are replaced with underscores
+     * and the prefix 'log4rich.' is replaced with 'LOG4RICH_'.
+     * 
+     * Examples:
+     * - log4rich.rootLevel -> LOG4RICH_ROOT_LEVEL
+     * - log4rich.console.enabled -> LOG4RICH_CONSOLE_ENABLED
+     * - log4rich.file.maxSize -> LOG4RICH_FILE_MAX_SIZE
+     * 
+     * @param properties the properties to apply overrides to
+     */
+    private static void applyEnvironmentVariableOverrides(Properties properties) {
+        int overrideCount = 0;
+        
+        for (String key : System.getenv().keySet()) {
+            if (key.startsWith("LOG4RICH_")) {
+                // Convert environment variable name to property name
+                String propertyName = environmentVariableToPropertyName(key);
+                String value = System.getenv(key);
+                
+                if (propertyName != null && value != null && !value.trim().isEmpty()) {
+                    properties.setProperty(propertyName, value.trim());
+                    overrideCount++;
+                    System.out.println("log4Rich: Environment override: " + propertyName + "=" + value.trim());
+                }
+            }
+        }
+        
+        if (overrideCount > 0) {
+            System.out.println("log4Rich: Applied " + overrideCount + " environment variable override(s)");
+        }
+    }
+    
+    /**
+     * Converts an environment variable name to a log4Rich property name.
+     * Uses a mapping table to ensure exact property name matches.
+     * 
+     * @param envVarName the environment variable name (e.g., "LOG4RICH_ROOT_LEVEL")
+     * @return the property name (e.g., "log4rich.rootLevel")
+     */
+    private static String environmentVariableToPropertyName(String envVarName) {
+        // Use explicit mapping to ensure correct property names
+        switch (envVarName) {
+            case "LOG4RICH_ROOT_LEVEL": return "log4rich.rootLevel";
+            case "LOG4RICH_CONSOLE_ENABLED": return "log4rich.console.enabled";
+            case "LOG4RICH_CONSOLE_TARGET": return "log4rich.console.target";
+            case "LOG4RICH_CONSOLE_LEVEL": return "log4rich.console.level";
+            case "LOG4RICH_CONSOLE_PATTERN": return "log4rich.console.pattern";
+            case "LOG4RICH_FILE_ENABLED": return "log4rich.file.enabled";
+            case "LOG4RICH_FILE_PATH": return "log4rich.file.path";
+            case "LOG4RICH_FILE_LEVEL": return "log4rich.file.level";
+            case "LOG4RICH_FILE_PATTERN": return "log4rich.file.pattern";
+            case "LOG4RICH_FILE_MAX_SIZE": return "log4rich.file.maxSize";
+            case "LOG4RICH_FILE_MAX_BACKUPS": return "log4rich.file.maxBackups";
+            case "LOG4RICH_FILE_COMPRESS": return "log4rich.file.compress";
+            case "LOG4RICH_FILE_COMPRESS_PROGRAM": return "log4rich.file.compress.program";
+            case "LOG4RICH_FILE_COMPRESS_ARGS": return "log4rich.file.compress.args";
+            case "LOG4RICH_FILE_ENCODING": return "log4rich.file.encoding";
+            case "LOG4RICH_FILE_BUFFER_SIZE": return "log4rich.file.bufferSize";
+            case "LOG4RICH_FILE_IMMEDIATE_FLUSH": return "log4rich.file.immediateFlush";
+            case "LOG4RICH_LOCATION_CAPTURE": return "log4rich.location.capture";
+            case "LOG4RICH_PERFORMANCE_MEMORY_MAPPED": return "log4rich.performance.memoryMapped";
+            case "LOG4RICH_PERFORMANCE_MAPPED_SIZE": return "log4rich.performance.mappedSize";
+            case "LOG4RICH_PERFORMANCE_BATCH_ENABLED": return "log4rich.performance.batchEnabled";
+            case "LOG4RICH_PERFORMANCE_BATCH_SIZE": return "log4rich.performance.batchSize";
+            case "LOG4RICH_PERFORMANCE_BATCH_TIME_MS": return "log4rich.performance.batchTimeMs";
+            case "LOG4RICH_PERFORMANCE_ZERO_ALLOCATION": return "log4rich.performance.zeroAllocation";
+            case "LOG4RICH_ASYNC_ENABLED": return "log4rich.async.enabled";
+            case "LOG4RICH_ASYNC_BUFFER_SIZE": return "log4rich.async.bufferSize";
+            case "LOG4RICH_ASYNC_OVERFLOW_STRATEGY": return "log4rich.async.overflowStrategy";
+            case "LOG4RICH_ASYNC_THREAD_PRIORITY": return "log4rich.async.threadPriority";
+            case "LOG4RICH_ASYNC_SHUTDOWN_TIMEOUT": return "log4rich.async.shutdownTimeout";
+            default:
+                // For unknown environment variables, log a warning and ignore
+                System.err.println("log4Rich: Unknown environment variable: " + envVarName);
+                return null;
+        }
+    }
+    
+    /**
+     * Gets all environment variables that can be used to override log4Rich configuration.
+     * 
+     * @return array of environment variable names that would override configuration
+     */
+    public static String[] getSupportedEnvironmentVariables() {
+        return new String[] {
+            "LOG4RICH_ROOT_LEVEL",
+            "LOG4RICH_CONSOLE_ENABLED", 
+            "LOG4RICH_CONSOLE_TARGET",
+            "LOG4RICH_CONSOLE_LEVEL",
+            "LOG4RICH_CONSOLE_PATTERN",
+            "LOG4RICH_FILE_ENABLED",
+            "LOG4RICH_FILE_PATH",
+            "LOG4RICH_FILE_LEVEL", 
+            "LOG4RICH_FILE_PATTERN",
+            "LOG4RICH_FILE_MAX_SIZE",
+            "LOG4RICH_FILE_MAX_BACKUPS",
+            "LOG4RICH_FILE_COMPRESS",
+            "LOG4RICH_FILE_COMPRESS_PROGRAM",
+            "LOG4RICH_FILE_COMPRESS_ARGS",
+            "LOG4RICH_FILE_ENCODING",
+            "LOG4RICH_FILE_BUFFER_SIZE",
+            "LOG4RICH_FILE_IMMEDIATE_FLUSH",
+            "LOG4RICH_LOCATION_CAPTURE",
+            "LOG4RICH_PERFORMANCE_MEMORY_MAPPED",
+            "LOG4RICH_PERFORMANCE_MAPPED_SIZE",
+            "LOG4RICH_PERFORMANCE_BATCH_ENABLED",
+            "LOG4RICH_PERFORMANCE_BATCH_SIZE",
+            "LOG4RICH_PERFORMANCE_BATCH_TIME_MS",
+            "LOG4RICH_PERFORMANCE_ZERO_ALLOCATION",
+            "LOG4RICH_ASYNC_ENABLED",
+            "LOG4RICH_ASYNC_BUFFER_SIZE",
+            "LOG4RICH_ASYNC_OVERFLOW_STRATEGY",
+            "LOG4RICH_ASYNC_THREAD_PRIORITY",
+            "LOG4RICH_ASYNC_SHUTDOWN_TIMEOUT"
         };
     }
 }

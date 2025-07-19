@@ -20,6 +20,7 @@ package com.log4rich.core;
 import com.log4rich.appenders.Appender;
 import com.log4rich.util.LocationInfo;
 import com.log4rich.util.LoggingEvent;
+import com.log4rich.util.MessageFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -162,6 +163,206 @@ public class Logger {
      */
     public void fatal(String message, Throwable throwable) {
         log(LogLevel.FATAL, message, throwable);
+    }
+    
+    // SLF4J-style parameterized logging methods
+    /**
+     * Logs a message at TRACE level using SLF4J-style {} placeholders.
+     * 
+     * @param messagePattern the message pattern with {} placeholders
+     * @param arguments the arguments to substitute into the pattern
+     */
+    public void trace(String messagePattern, Object... arguments) {
+        if (isTraceEnabled()) {
+            Throwable throwable = MessageFormatter.extractThrowable(arguments);
+            Object[] args = MessageFormatter.removeThrowable(arguments, throwable);
+            String formattedMessage = MessageFormatter.format(messagePattern, args);
+            log(LogLevel.TRACE, formattedMessage, throwable);
+        }
+    }
+    
+    /**
+     * Logs a message at DEBUG level using SLF4J-style {} placeholders.
+     * 
+     * @param messagePattern the message pattern with {} placeholders
+     * @param arguments the arguments to substitute into the pattern
+     */
+    public void debug(String messagePattern, Object... arguments) {
+        if (isDebugEnabled()) {
+            Throwable throwable = MessageFormatter.extractThrowable(arguments);
+            Object[] args = MessageFormatter.removeThrowable(arguments, throwable);
+            String formattedMessage = MessageFormatter.format(messagePattern, args);
+            log(LogLevel.DEBUG, formattedMessage, throwable);
+        }
+    }
+    
+    /**
+     * Logs a message at INFO level using SLF4J-style {} placeholders.
+     * 
+     * @param messagePattern the message pattern with {} placeholders
+     * @param arguments the arguments to substitute into the pattern
+     */
+    public void info(String messagePattern, Object... arguments) {
+        if (isInfoEnabled()) {
+            Throwable throwable = MessageFormatter.extractThrowable(arguments);
+            Object[] args = MessageFormatter.removeThrowable(arguments, throwable);
+            String formattedMessage = MessageFormatter.format(messagePattern, args);
+            log(LogLevel.INFO, formattedMessage, throwable);
+        }
+    }
+    
+    /**
+     * Logs a message at WARN level using SLF4J-style {} placeholders.
+     * 
+     * @param messagePattern the message pattern with {} placeholders
+     * @param arguments the arguments to substitute into the pattern
+     */
+    public void warn(String messagePattern, Object... arguments) {
+        if (isWarnEnabled()) {
+            Throwable throwable = MessageFormatter.extractThrowable(arguments);
+            Object[] args = MessageFormatter.removeThrowable(arguments, throwable);
+            String formattedMessage = MessageFormatter.format(messagePattern, args);
+            log(LogLevel.WARN, formattedMessage, throwable);
+        }
+    }
+    
+    /**
+     * Logs a message at ERROR level using SLF4J-style {} placeholders.
+     * 
+     * @param messagePattern the message pattern with {} placeholders
+     * @param arguments the arguments to substitute into the pattern
+     */
+    public void error(String messagePattern, Object... arguments) {
+        if (isErrorEnabled()) {
+            Throwable throwable = MessageFormatter.extractThrowable(arguments);
+            Object[] args = MessageFormatter.removeThrowable(arguments, throwable);
+            String formattedMessage = MessageFormatter.format(messagePattern, args);
+            log(LogLevel.ERROR, formattedMessage, throwable);
+        }
+    }
+    
+    /**
+     * Logs a message at FATAL level using SLF4J-style {} placeholders.
+     * 
+     * @param messagePattern the message pattern with {} placeholders
+     * @param arguments the arguments to substitute into the pattern
+     */
+    public void fatal(String messagePattern, Object... arguments) {
+        if (isFatalEnabled()) {
+            Throwable throwable = MessageFormatter.extractThrowable(arguments);
+            Object[] args = MessageFormatter.removeThrowable(arguments, throwable);
+            String formattedMessage = MessageFormatter.format(messagePattern, args);
+            log(LogLevel.FATAL, formattedMessage, throwable);
+        }
+    }
+    
+    // Convenience methods for common error patterns with one argument and throwable
+    /**
+     * Logs a message at ERROR level with one argument and an exception.
+     * Convenience method for common error patterns.
+     * 
+     * @param messagePattern the message pattern with one {} placeholder
+     * @param argument the argument to substitute
+     * @param throwable the exception to log
+     */
+    public void error(String messagePattern, Object argument, Throwable throwable) {
+        if (isErrorEnabled()) {
+            String formattedMessage = MessageFormatter.format(messagePattern, argument);
+            log(LogLevel.ERROR, formattedMessage, throwable);
+        }
+    }
+    
+    /**
+     * Logs a message at WARN level with one argument and an exception.
+     * Convenience method for common warning patterns.
+     * 
+     * @param messagePattern the message pattern with one {} placeholder
+     * @param argument the argument to substitute
+     * @param throwable the exception to log
+     */
+    public void warn(String messagePattern, Object argument, Throwable throwable) {
+        if (isWarnEnabled()) {
+            String formattedMessage = MessageFormatter.format(messagePattern, argument);
+            log(LogLevel.WARN, formattedMessage, throwable);
+        }
+    }
+    
+    /**
+     * Logs a message at DEBUG level with one argument and an exception.
+     * Convenience method for common debug patterns.
+     * 
+     * @param messagePattern the message pattern with one {} placeholder
+     * @param argument the argument to substitute
+     * @param throwable the exception to log
+     */
+    public void debug(String messagePattern, Object argument, Throwable throwable) {
+        if (isDebugEnabled()) {
+            String formattedMessage = MessageFormatter.format(messagePattern, argument);
+            log(LogLevel.DEBUG, formattedMessage, throwable);
+        }
+    }
+    
+    /**
+     * Logs a message at TRACE level with one argument and an exception.
+     * Convenience method for common trace patterns.
+     * 
+     * @param messagePattern the message pattern with one {} placeholder
+     * @param argument the argument to substitute
+     * @param throwable the exception to log
+     */
+    public void trace(String messagePattern, Object argument, Throwable throwable) {
+        if (isTraceEnabled()) {
+            String formattedMessage = MessageFormatter.format(messagePattern, argument);
+            log(LogLevel.TRACE, formattedMessage, throwable);
+        }
+    }
+    
+    /**
+     * Logs a message at FATAL level with one argument and an exception.
+     * Convenience method for common fatal error patterns.
+     * 
+     * @param messagePattern the message pattern with one {} placeholder
+     * @param argument the argument to substitute
+     * @param throwable the exception to log
+     */
+    public void fatal(String messagePattern, Object argument, Throwable throwable) {
+        if (isFatalEnabled()) {
+            String formattedMessage = MessageFormatter.format(messagePattern, argument);
+            log(LogLevel.FATAL, formattedMessage, throwable);
+        }
+    }
+    
+    // Convenience methods for two arguments and throwable
+    /**
+     * Logs a message at ERROR level with two arguments and an exception.
+     * Convenience method for common error patterns.
+     * 
+     * @param messagePattern the message pattern with two {} placeholders
+     * @param arg1 the first argument to substitute
+     * @param arg2 the second argument to substitute
+     * @param throwable the exception to log
+     */
+    public void error(String messagePattern, Object arg1, Object arg2, Throwable throwable) {
+        if (isErrorEnabled()) {
+            String formattedMessage = MessageFormatter.format(messagePattern, arg1, arg2);
+            log(LogLevel.ERROR, formattedMessage, throwable);
+        }
+    }
+    
+    /**
+     * Logs a message at WARN level with two arguments and an exception.
+     * Convenience method for common warning patterns.
+     * 
+     * @param messagePattern the message pattern with two {} placeholders
+     * @param arg1 the first argument to substitute
+     * @param arg2 the second argument to substitute
+     * @param throwable the exception to log
+     */
+    public void warn(String messagePattern, Object arg1, Object arg2, Throwable throwable) {
+        if (isWarnEnabled()) {
+            String formattedMessage = MessageFormatter.format(messagePattern, arg1, arg2);
+            log(LogLevel.WARN, formattedMessage, throwable);
+        }
     }
     
     // Level checking methods
