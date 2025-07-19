@@ -716,16 +716,21 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ## Changelog
 
-### Version 1.0.0
+### Version 1.0.1
+- **SLF4J Migration Enhancements**: Complete {} placeholder support with 100% SLF4J compatibility
+- **Environment Variables**: Full support for 29 LOG4RICH_* environment variables
+- **Enhanced Error Messages**: Detailed validation with specific fix guidance
+- **Migration Utilities**: Comprehensive documentation and tools for SLF4J/Log4j migration
+- **Parameterized Logging**: All log levels support SLF4J-style parameter substitution
+- **Automatic Throwable Detection**: Smart exception handling in parameter arrays
+
+### Version 1.0.0  
 - **Initial Release**: Core logging functionality with console and file appenders
 - **Rolling File Support**: Size-based rotation with compression
 - **Runtime Configuration**: Dynamic configuration changes without restart
 - **Location Information**: Automatic capture of class, method, and line numbers
 - **Performance Features**: Memory-mapped files (5.4x faster), batch processing (23x faster), zero-allocation mode
 - **Asynchronous Features**: Lock-free ring buffers, async compression with adaptive management
-- **SLF4J Compatibility**: {} placeholder support for easy migration from SLF4J/Log4j
-- **Environment Variables**: Override any configuration with LOG4RICH_* environment variables  
-- **Enhanced Validation**: Detailed error messages with specific fix guidance
 - **Comprehensive Testing**: Full test suite with performance benchmarks
 - **Complete Documentation**: JavaDoc API reference and usage examples
 - **Java 8+ compatibility** - Works with Java 8 through Java 21+

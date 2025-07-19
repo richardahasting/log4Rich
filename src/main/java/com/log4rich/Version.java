@@ -35,7 +35,7 @@ public final class Version {
     // Core version information
     private static final String MAJOR_VERSION = "1";
     private static final String MINOR_VERSION = "0";
-    private static final String PATCH_VERSION = "0";
+    private static final String PATCH_VERSION = "1";
     private static final String BUILD_TYPE = "RELEASE";
     
     // Full version string
@@ -65,13 +65,15 @@ public final class Version {
     
     // Feature highlights for this version
     private static final String[] VERSION_FEATURES = {
+        "SLF4J-style {} placeholder support (100% compatible)",
+        "Environment variable configuration (29 LOG4RICH_* variables)",
+        "Enhanced error messages with specific fix guidance",
+        "Migration utilities for SLF4J/Log4j users",
         "Asynchronous compression with adaptive management",
         "Lock-free ring buffers for async logging", 
         "Memory-mapped file I/O (5.4x performance)",
         "Intelligent batch processing (23x multi-threaded)",
         "Zero-allocation mode with object pools",
-        "Adaptive file size management",
-        "Comprehensive compression queue monitoring",
         "Runtime configuration management"
     };
     

@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn test:*)",
+      "Bash(grep:*)",
+      "Bash(mvn javadoc:*)",
+      "Bash(mvn:*)"
+    ],
+    "deny": []
+  }
+}
