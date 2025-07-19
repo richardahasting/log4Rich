@@ -29,7 +29,18 @@ import com.log4rich.layouts.StandardLayout;
 
 /**
  * Main entry point and facade for the log4Rich logging framework.
- * This class provides static methods for easy logger access and configuration.
+ * 
+ * This class provides static methods for easy logger access and configuration,
+ * supporting ultra-high performance logging with asynchronous compression,
+ * adaptive file size management, and advanced I/O optimizations.
+ * 
+ * <p><strong>Version:</strong> 1.0.0</p>
+ * <p><strong>Performance:</strong> Up to 2.3 million messages/second</p>
+ * <p><strong>Features:</strong> Async compression, memory-mapped I/O, lock-free ring buffers</p>
+ * 
+ * @author log4Rich Contributors
+ * @since 1.0.0
+ * @version 1.0.0
  */
 public class Log4Rich {
     
@@ -388,12 +399,76 @@ public class Log4Rich {
     }
     
     /**
-     * Main method for testing and demonstration.
-     * This method demonstrates the basic usage of the log4Rich framework.
+     * Gets the current version of the log4Rich framework.
      * 
-     * @param args command line arguments (not used)
+     * @return the version string (e.g., "1.0.0")
+     */
+    public static String getVersion() {
+        return Version.getVersion();
+    }
+    
+    /**
+     * Gets the full version information including build details.
+     * 
+     * @return comprehensive version information
+     */
+    public static String getVersionInfo() {
+        return Version.getVersionInfo();
+    }
+    
+    /**
+     * Gets a compact banner suitable for application startup.
+     * 
+     * @return compact version banner
+     */
+    public static String getBanner() {
+        return Version.getBanner();
+    }
+    
+    /**
+     * Prints the framework banner to standard output.
+     * Useful for application startup logging.
+     */
+    public static void printBanner() {
+        Version.printBanner();
+    }
+    
+    /**
+     * Checks if the current Java version meets the minimum requirements.
+     * 
+     * @return true if Java version is compatible, false otherwise
+     */
+    public static boolean isJavaVersionCompatible() {
+        return Version.isJavaVersionCompatible();
+    }
+    
+    /**
+     * Main method for testing, demonstration, and version checking.
+     * 
+     * @param args command line arguments:
+     *             --version or -v: show version only
+     *             --banner or -b: show banner only
+     *             --info: show full version information
+     *             (no args): run demonstration
      */
     public static void main(String[] args) {
+        // Handle version checking arguments
+        if (args.length > 0) {
+            if ("--version".equals(args[0]) || "-v".equals(args[0])) {
+                System.out.println(getVersion());
+                return;
+            } else if ("--banner".equals(args[0]) || "-b".equals(args[0])) {
+                printBanner();
+                return;
+            } else if ("--info".equals(args[0])) {
+                System.out.println(getVersionInfo());
+                return;
+            }
+        }
+        
+        // Print banner at startup
+        printBanner();
+        System.out.println();
         // Create a sample logger
         Logger logger = Log4Rich.getLogger(Log4Rich.class);
         

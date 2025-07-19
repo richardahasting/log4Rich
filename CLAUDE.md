@@ -6,6 +6,46 @@ This file documents the development history and modifications made by Claude to 
 
 log4Rich is a high-performance Java logging framework designed for ultra-fast logging with advanced features including memory-mapped files, batch processing, asynchronous logging, and adaptive compression management.
 
+## Version Information
+
+**Current Version**: 1.0.0-RELEASE  
+**Release Date**: July 19, 2025  
+**Build**: 2025-07-19 15:20:00 UTC  
+
+### Version 1.0.0 Features
+- Asynchronous compression with adaptive management
+- Lock-free ring buffers for async logging
+- Memory-mapped file I/O (5.4x performance improvement)
+- Intelligent batch processing (23x multi-threaded performance)
+- Zero-allocation mode with object pools
+- Adaptive file size management
+- Comprehensive compression queue monitoring
+- Runtime configuration management
+
+### Version Checking
+```bash
+# Check version only
+java -cp log4Rich.jar com.log4rich.Log4Rich --version
+
+# Show banner
+java -cp log4Rich.jar com.log4rich.Log4Rich --banner
+
+# Full version information
+java -cp log4Rich.jar com.log4rich.Version
+```
+
+### Programmatic Version Access
+```java
+import com.log4rich.Log4Rich;
+import com.log4rich.Version;
+
+// Get version information
+String version = Log4Rich.getVersion();           // "1.0.0"
+String banner = Log4Rich.getBanner();             // Compact banner
+String fullInfo = Log4Rich.getVersionInfo();      // Complete information
+boolean compatible = Log4Rich.isJavaVersionCompatible(); // Java compatibility
+```
+
 ## Development History
 
 ### Session 1: Initial Project Foundation (July 18, 2025)
