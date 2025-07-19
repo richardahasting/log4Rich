@@ -65,6 +65,13 @@ public class Configuration {
     private static final boolean DEFAULT_ZERO_ALLOCATION = false;
     private static final int DEFAULT_STRING_BUILDER_CAPACITY = 1024;
     
+    // Asynchronous logging defaults
+    private static final boolean DEFAULT_ASYNC_ENABLED = false;
+    private static final int DEFAULT_ASYNC_BUFFER_SIZE = 65536; // 64K
+    private static final String DEFAULT_ASYNC_OVERFLOW_STRATEGY = "DROP_OLDEST";
+    private static final int DEFAULT_ASYNC_THREAD_PRIORITY = Thread.NORM_PRIORITY;
+    private static final long DEFAULT_ASYNC_SHUTDOWN_TIMEOUT = 5000; // 5 seconds
+    
     private final Properties properties;
     private final Map<String, LogLevel> loggerLevels;
     
@@ -130,6 +137,13 @@ public class Configuration {
         properties.setProperty("log4rich.performance.batchTimeMs", String.valueOf(DEFAULT_BATCH_TIME_MS));
         properties.setProperty("log4rich.performance.zeroAllocation", String.valueOf(DEFAULT_ZERO_ALLOCATION));
         properties.setProperty("log4rich.performance.stringBuilderCapacity", String.valueOf(DEFAULT_STRING_BUILDER_CAPACITY));
+        
+        // Asynchronous logging defaults
+        properties.setProperty("log4rich.async.enabled", String.valueOf(DEFAULT_ASYNC_ENABLED));
+        properties.setProperty("log4rich.async.bufferSize", String.valueOf(DEFAULT_ASYNC_BUFFER_SIZE));
+        properties.setProperty("log4rich.async.overflowStrategy", DEFAULT_ASYNC_OVERFLOW_STRATEGY);
+        properties.setProperty("log4rich.async.threadPriority", String.valueOf(DEFAULT_ASYNC_THREAD_PRIORITY));
+        properties.setProperty("log4rich.async.shutdownTimeout", String.valueOf(DEFAULT_ASYNC_SHUTDOWN_TIMEOUT));
     }
     
     /**
@@ -494,6 +508,53 @@ public class Configuration {
      */
     public int getStringBuilderCapacity() {
         return Integer.parseInt(properties.getProperty("log4rich.performance.stringBuilderCapacity"));
+    }
+    
+    // Asynchronous logging configuration methods
+    
+    /**
+     * Checks if asynchronous logging is enabled.
+     * 
+     * @return true if async logging should be used
+     */
+    public boolean isAsyncEnabled() {
+        return Boolean.parseBoolean(properties.getProperty("log4rich.async.enabled"));
+    }
+    
+    /**
+     * Gets the ring buffer size for async logging.
+     * 
+     * @return the buffer size (must be power of 2)
+     */
+    public int getAsyncBufferSize() {
+        return Integer.parseInt(properties.getProperty("log4rich.async.bufferSize"));
+    }
+    
+    /**
+     * Gets the overflow strategy for async logging.
+     * 
+     * @return the overflow strategy name
+     */
+    public String getAsyncOverflowStrategy() {
+        return properties.getProperty("log4rich.async.overflowStrategy");
+    }
+    
+    /**
+     * Gets the thread priority for async processing threads.
+     * 
+     * @return the thread priority (1-10)
+     */
+    public int getAsyncThreadPriority() {
+        return Integer.parseInt(properties.getProperty("log4rich.async.threadPriority"));
+    }
+    
+    /**
+     * Gets the shutdown timeout for async loggers.
+     * 
+     * @return the shutdown timeout in milliseconds
+     */
+    public long getAsyncShutdownTimeout() {
+        return Long.parseLong(properties.getProperty("log4rich.async.shutdownTimeout"));
     }
     
     /**
