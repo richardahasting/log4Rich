@@ -245,9 +245,7 @@ public class Log4RichUsageDemo {
         Logger configLogger = Log4Rich.getLogger("ConfigDemo");
         
         // Show current configuration
-        System.out.println("Current root level: " + Log4Rich.getRootLevel());
-        System.out.println("Console enabled: " + Log4Rich.isConsoleEnabled());
-        System.out.println("File enabled: " + Log4Rich.isFileEnabled());
+        System.out.println("Demonstrating runtime configuration changes...");
         
         // Test current level
         configLogger.debug("This debug message may not appear");

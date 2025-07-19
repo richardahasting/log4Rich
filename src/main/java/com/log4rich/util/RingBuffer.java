@@ -89,7 +89,7 @@ public class RingBuffer<T> {
         long wrapPoint = currentWrite - capacity;
         
         // Check if buffer is full by comparing with read sequence
-        if (wrapPoint > readSequence) {
+        if (wrapPoint >= readSequence) {
             bufferFullCount++;
             return false;
         }
