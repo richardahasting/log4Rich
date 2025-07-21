@@ -23,6 +23,7 @@ import com.log4rich.appenders.MemoryMappedFileAppender;
 import com.log4rich.appenders.RollingFileAppender;
 import com.log4rich.core.LogLevel;
 import com.log4rich.core.Logger;
+import com.log4rich.layouts.JsonLayout;
 import com.log4rich.util.AsyncCompressionManager;
 
 import java.io.File;
@@ -36,13 +37,14 @@ import java.util.concurrent.TimeUnit;
  * This class demonstrates:
  * 1. Basic logging with configuration
  * 2. SLF4J-style placeholder logging (NEW in v1.0.0)
- * 3. High-performance memory-mapped file logging
- * 4. Ultra-high-throughput batch processing
- * 5. Asynchronous compression with adaptive management
- * 6. Multi-threaded logging scenarios
- * 7. Runtime configuration management
- * 8. Environment variable configuration
- * 9. Best practices for production use
+ * 3. JSON structured logging (NEW in v1.1.0)
+ * 4. High-performance memory-mapped file logging
+ * 5. Ultra-high-throughput batch processing
+ * 6. Asynchronous compression with adaptive management
+ * 7. Multi-threaded logging scenarios
+ * 8. Runtime configuration management
+ * 9. Environment variable configuration
+ * 10. Best practices for production use
  * 
  * Use this as a reference for implementing log4Rich in your applications.
  * 
@@ -60,6 +62,7 @@ public class Log4RichUsageDemo {
         // Demonstrate different usage patterns
         demonstrateBasicUsage();
         demonstrateSLF4JStyleLogging();
+        demonstrateJsonStructuredLogging();
         demonstrateEnvironmentVariables();
         demonstrateHighPerformanceUsage();
         demonstrateAsyncCompressionUsage();
@@ -144,10 +147,179 @@ public class Log4RichUsageDemo {
     }
     
     /**
+     * Demonstrates JSON structured logging (NEW in v1.1.0).
+     */
+    private static void demonstrateJsonStructuredLogging() throws Exception {
+        System.out.println("3. JSON Structured Logging (NEW in v1.1.0!)");
+        System.out.println("============================================");
+        
+        // Create different JSON layout types
+        System.out.println("Creating various JSON layout configurations...");
+        
+        // 1. Compact JSON Layout (production)
+        JsonLayout compactLayout = JsonLayout.createCompactLayout();
+        compactLayout.addAdditionalField("service", "user-service");
+        compactLayout.addAdditionalField("version", "2.1.0");
+        
+        RollingFileAppender compactAppender = new RollingFileAppender("demo-logs/compact-json.log");
+        compactAppender.setLayout(compactLayout);
+        compactAppender.setName("CompactJSON");
+        
+        // 2. Pretty JSON Layout (development)
+        JsonLayout prettyLayout = JsonLayout.createPrettyLayout();
+        prettyLayout.addAdditionalField("developer", "demo-user");
+        prettyLayout.addAdditionalField("branch", "feature/json-logging");
+        
+        RollingFileAppender prettyAppender = new RollingFileAppender("demo-logs/pretty-json.log");
+        prettyAppender.setLayout(prettyLayout);
+        prettyAppender.setName("PrettyJSON");
+        
+        // 3. Production JSON Layout (optimized)
+        JsonLayout productionLayout = JsonLayout.createProductionLayout();
+        productionLayout.addAdditionalField("environment", "production");
+        productionLayout.addAdditionalField("cluster", "prod-cluster-01");
+        productionLayout.addAdditionalField("datacenter", "us-east-1");
+        
+        RollingFileAppender productionAppender = new RollingFileAppender("demo-logs/production-json.log");
+        productionAppender.setLayout(productionLayout);
+        productionAppender.setName("ProductionJSON");
+        
+        // 4. Minimal JSON Layout (highest performance)
+        JsonLayout minimalLayout = JsonLayout.createMinimalLayout();
+        
+        RollingFileAppender minimalAppender = new RollingFileAppender("demo-logs/minimal-json.log");
+        minimalAppender.setLayout(minimalLayout);
+        minimalAppender.setName("MinimalJSON");
+        
+        // Create loggers for each layout
+        Logger compactLogger = Log4Rich.getLogger("CompactJSON");
+        Logger prettyLogger = Log4Rich.getLogger("PrettyJSON");
+        Logger productionLogger = Log4Rich.getLogger("ProductionJSON");
+        Logger minimalLogger = Log4Rich.getLogger("MinimalJSON");
+        
+        compactLogger.addAppender(compactAppender);
+        prettyLogger.addAppender(prettyAppender);
+        productionLogger.addAppender(productionAppender);
+        minimalLogger.addAppender(minimalAppender);
+        
+        // Demonstrate different types of JSON logging
+        System.out.println("Logging various message types in JSON format...");
+        
+        // Business event logging
+        compactLogger.info("User {} logged in from {} with session {}", 
+                          "john.doe", "192.168.1.100", "session-12345");
+        
+        prettyLogger.info("API request processed: endpoint={}, method={}, duration={} ms", 
+                         "/api/users/profile", "GET", 245);
+        
+        productionLogger.warn("Database connection pool nearing capacity: active={}, max={}, threshold={}", 
+                             85, 100, 80);
+        
+        minimalLogger.error("Payment processing failed: order_id={}, amount=${}, gateway={}", 
+                           "ORDER-98765", 299.99, "stripe");
+        
+        // Complex object logging
+        compactLogger.debug("Shopping cart contents: user={}, items={}, total=${}", 
+                           "jane.smith", 3, 159.97);
+        
+        // Exception logging with JSON
+        try {
+            throw new RuntimeException("Database connection timeout");
+        } catch (Exception e) {
+            prettyLogger.error("Critical system error in payment processing for user {}", 
+                              "customer-67890", e);
+        }
+        
+        // Performance metrics in JSON
+        productionLogger.info("Performance metrics: operation={}, success_rate={}%, avg_duration={} ms, p95_duration={} ms", 
+                             "user_login", 98.5, 150, 300);
+        
+        // Security events
+        compactLogger.warn("Security alert: event={}, user={}, ip={}, threat_level={}", 
+                          "multiple_failed_logins", "suspicious.user", "10.0.0.1", "HIGH");
+        
+        // Business KPIs
+        productionLogger.info("Daily metrics: active_users={}, transactions={}, revenue=${}, conversion_rate={}%", 
+                             12450, 8932, 45678.90, 7.2);
+        
+        // Custom timestamp format demonstration
+        JsonLayout customTimestampLayout = new JsonLayout(false, true, true, "yyyy/MM/dd HH:mm:ss.SSS");
+        RollingFileAppender customTimestampAppender = new RollingFileAppender("demo-logs/custom-timestamp-json.log");
+        customTimestampAppender.setLayout(customTimestampLayout);
+        customTimestampAppender.setName("CustomTimestamp");
+        
+        Logger customTimestampLogger = Log4Rich.getLogger("CustomTimestamp");
+        customTimestampLogger.addAppender(customTimestampAppender);
+        customTimestampLogger.info("Custom timestamp format demonstration");
+        
+        // Performance comparison: JSON vs Standard layout
+        System.out.println("\nPerforming JSON vs Standard layout performance comparison...");
+        
+        // Standard layout performance test
+        RollingFileAppender standardTestAppender = new RollingFileAppender("demo-logs/standard-perf-test.log");
+        Logger standardPerfLogger = Log4Rich.getLogger("StandardPerf");
+        standardPerfLogger.addAppender(standardTestAppender);
+        
+        int messageCount = 5000;
+        long start = System.currentTimeMillis();
+        for (int i = 0; i < messageCount; i++) {
+            standardPerfLogger.info("Standard layout message {} with user {} and value {}", 
+                                   i, "user-" + i, i * 1.5);
+        }
+        long standardTime = System.currentTimeMillis() - start;
+        
+        // JSON layout performance test
+        RollingFileAppender jsonTestAppender = new RollingFileAppender("demo-logs/json-perf-test.log");
+        jsonTestAppender.setLayout(JsonLayout.createCompactLayout());
+        Logger jsonPerfLogger = Log4Rich.getLogger("JSONPerf");
+        jsonPerfLogger.addAppender(jsonTestAppender);
+        
+        start = System.currentTimeMillis();
+        for (int i = 0; i < messageCount; i++) {
+            jsonPerfLogger.info("JSON layout message {} with user {} and value {}", 
+                               i, "user-" + i, i * 1.5);
+        }
+        long jsonTime = System.currentTimeMillis() - start;
+        
+        // Display performance results
+        System.out.printf("Performance comparison (%d messages):%n", messageCount);
+        System.out.printf("  Standard Layout: %d ms (%.0f msg/s)%n", 
+                         standardTime, messageCount * 1000.0 / standardTime);
+        System.out.printf("  JSON Layout:     %d ms (%.0f msg/s)%n", 
+                         jsonTime, messageCount * 1000.0 / jsonTime);
+        
+        if (jsonTime < standardTime) {
+            System.out.printf("  ⚡ JSON is %.1f%% FASTER than standard layout!%n", 
+                             ((double)(standardTime - jsonTime) / standardTime) * 100);
+        } else {
+            System.out.printf("  JSON overhead: %.1f%%  (still excellent performance)%n", 
+                             ((double)(jsonTime - standardTime) / standardTime) * 100);
+        }
+        
+        // Cleanup appenders
+        compactAppender.close();
+        prettyAppender.close();
+        productionAppender.close();
+        minimalAppender.close();
+        customTimestampAppender.close();
+        standardTestAppender.close();
+        jsonTestAppender.close();
+        
+        System.out.println("\n✓ JSON structured logging demonstration complete");
+        System.out.println("📁 Check demo-logs/ directory for JSON output examples:");
+        System.out.println("   - compact-json.log (single-line, production-ready)");
+        System.out.println("   - pretty-json.log (formatted for development)");
+        System.out.println("   - production-json.log (optimized for log analysis tools)");
+        System.out.println("   - minimal-json.log (essential fields only, highest performance)");
+        System.out.println("   - custom-timestamp-json.log (custom timestamp format)");
+        System.out.println();
+    }
+    
+    /**
      * Demonstrates environment variable configuration (NEW in v1.0.0).
      */
     private static void demonstrateEnvironmentVariables() {
-        System.out.println("3. Environment Variable Configuration (NEW!)");
+        System.out.println("4. Environment Variable Configuration (NEW!)");
         System.out.println("============================================");
         
         System.out.println("Environment variable examples:");
@@ -177,7 +349,7 @@ public class Log4RichUsageDemo {
      * Demonstrates high-performance features: memory-mapped files and batch processing.
      */
     private static void demonstrateHighPerformanceUsage() throws Exception {
-        System.out.println("4. High-Performance Features");
+        System.out.println("5. High-Performance Features");
         System.out.println("============================");
         
         // Create loggers for performance comparison
@@ -256,7 +428,7 @@ public class Log4RichUsageDemo {
      * Demonstrates asynchronous compression with adaptive management.
      */
     private static void demonstrateAsyncCompressionUsage() throws Exception {
-        System.out.println("5. Asynchronous Compression with Adaptive Management");
+        System.out.println("6. Asynchronous Compression with Adaptive Management");
         System.out.println("===================================================");
         
         // Create rolling file appender with async compression
@@ -333,7 +505,7 @@ public class Log4RichUsageDemo {
      * Demonstrates multi-threaded logging scenarios.
      */
     private static void demonstrateMultiThreadedUsage() throws Exception {
-        System.out.println("6. Multi-Threaded Logging");
+        System.out.println("7. Multi-Threaded Logging");
         System.out.println("=========================");
         
         // Create batch appender for best multi-threaded performance
@@ -399,7 +571,7 @@ public class Log4RichUsageDemo {
      * Demonstrates runtime configuration management.
      */
     private static void demonstrateRuntimeConfiguration() {
-        System.out.println("7. Runtime Configuration");
+        System.out.println("8. Runtime Configuration");
         System.out.println("========================");
         
         Logger configLogger = Log4Rich.getLogger("ConfigDemo");
@@ -437,7 +609,7 @@ public class Log4RichUsageDemo {
      * Demonstrates production best practices.
      */
     private static void demonstrateProductionBestPractices() {
-        System.out.println("8. Production Best Practices");
+        System.out.println("9. Production Best Practices");
         System.out.println("============================");
         
         // 1. Use class-based loggers
@@ -451,6 +623,8 @@ public class Log4RichUsageDemo {
         System.out.println("- Use memory-mapped files for low latency");
         System.out.println("- Enable async compression: appender.setUseAsyncCompression(true)");
         System.out.println("- Monitor compression queue utilization in high-volume scenarios");
+        System.out.println("- Use JSON layouts for log analysis tools (ELK Stack, Splunk, etc.)");
+        System.out.println("- Set JSON prettyPrint=false for production (compact output)");
         
         // 3. Demonstrate proper exception logging
         try {

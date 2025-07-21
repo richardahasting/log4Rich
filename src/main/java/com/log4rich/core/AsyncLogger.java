@@ -493,6 +493,10 @@ public class AsyncLogger extends Logger {
         public long getEventsProcessed() { return eventsProcessed; }
         public long getEventsDropped() { return eventsDropped; }
         public long getOverflowEvents() { return overflowEvents; }
+        /**
+         * Gets the ring buffer statistics.
+         * @return the ring buffer statistics
+         */
         public RingBuffer.RingBufferStatistics getBufferStats() { return bufferStats; }
         public OverflowStrategy getOverflowStrategy() { return overflowStrategy; }
         public boolean isRunning() { return running; }

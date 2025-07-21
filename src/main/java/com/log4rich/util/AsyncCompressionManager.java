@@ -406,13 +406,28 @@ public class AsyncCompressionManager {
             this.wasBlocked = wasBlocked;
         }
         
-        /** @return the compressed file */
+        /**
+         * Gets the compressed file.
+         * @return the compressed file
+         */
         public File getCompressedFile() { return compressedFile; }
-        /** @return the new maximum file size after adaptation */
+        
+        /**
+         * Gets the new maximum file size after adaptation.
+         * @return the new maximum file size after adaptation
+         */
         public long getNewMaxSize() { return newMaxSize; }
-        /** @return true if file size was increased due to compression overload */
+        
+        /**
+         * Checks if file size was increased due to compression overload.
+         * @return true if file size was increased due to compression overload
+         */
         public boolean wasSizeIncreased() { return sizeWasIncreased; }
-        /** @return true if operation was blocked waiting for compression */
+        
+        /**
+         * Checks if operation was blocked waiting for compression.
+         * @return true if operation was blocked waiting for compression
+         */
         public boolean wasBlocked() { return wasBlocked; }
     }
     
@@ -437,19 +452,46 @@ public class AsyncCompressionManager {
             this.maxQueueSize = maxQueueSize;
         }
         
-        /** @return current number of files in compression queue */
+        /**
+         * Gets the current number of files in compression queue.
+         * @return current number of files in compression queue
+         */
         public int getCurrentQueueSize() { return currentQueueSize; }
-        /** @return total number of files successfully compressed */
+        
+        /**
+         * Gets the total number of files successfully compressed.
+         * @return total number of files successfully compressed
+         */
         public long getTotalCompressed() { return totalCompressed; }
-        /** @return total number of compression failures */
+        
+        /**
+         * Gets the total number of compression failures.
+         * @return total number of compression failures
+         */
         public long getTotalFailed() { return totalFailed; }
-        /** @return total number of times compression was blocked */
+        
+        /**
+         * Gets the total number of times compression was blocked.
+         * @return total number of times compression was blocked
+         */
         public long getTotalBlocked() { return totalBlocked; }
-        /** @return total number of adaptive file size increases */
+        
+        /**
+         * Gets the total number of adaptive file size increases.
+         * @return total number of adaptive file size increases
+         */
         public long getAdaptiveResizes() { return adaptiveResizes; }
-        /** @return maximum compression queue size */
+        
+        /**
+         * Gets the maximum compression queue size.
+         * @return maximum compression queue size
+         */
         public int getMaxQueueSize() { return maxQueueSize; }
-        /** @return queue utilization as percentage (0.0 to 1.0) */
+        
+        /**
+         * Gets the queue utilization as percentage.
+         * @return queue utilization as percentage (0.0 to 1.0)
+         */
         public double getQueueUtilization() { return (double) currentQueueSize / maxQueueSize; }
         
         @Override

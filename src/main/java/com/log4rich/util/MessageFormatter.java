@@ -24,7 +24,7 @@ package com.log4rich.util;
  * supporting {} placeholders for parameter substitution. It also handles special
  * cases like array arguments and automatic throwable detection.</p>
  * 
- * <h3>Features:</h3>
+ * <h2>Features:</h2>
  * <ul>
  *   <li><strong>SLF4J Compatibility</strong>: Identical {} placeholder syntax</li>
  *   <li><strong>Array Support</strong>: Automatically formats arrays using Arrays.toString()</li>
@@ -33,7 +33,7 @@ package com.log4rich.util;
  *   <li><strong>Null Safety</strong>: Handles null arguments gracefully</li>
  * </ul>
  * 
- * <h3>Examples:</h3>
+ * <h2>Examples:</h2>
  * <pre>{@code
  * // Basic placeholder substitution
  * format("User {} logged in", "john") // → "User john logged in"

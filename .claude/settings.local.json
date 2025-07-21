@@ -4,7 +4,17 @@
       "Bash(mvn test:*)",
       "Bash(grep:*)",
       "Bash(mvn javadoc:*)",
-      "Bash(mvn:*)"
+      "Bash(mvn:*)",
+      "Bash(gh release create:*)",
+      "Bash(jar:*)",
+      "Bash(gh release upload:*)",
+      "Bash(ls:*)",
+      "Bash(gh release:*)",
+      "Bash(gh issue list:*)",
+      "Bash(chmod:*)",
+      "Bash(./run-json-test.sh:*)",
+      "Bash(find:*)",
+      "Bash(git add:*)"
     ],
     "deny": []
   }

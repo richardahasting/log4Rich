@@ -24,6 +24,16 @@ import java.util.Properties;
  * Loads configuration from various sources in the search order specified.
  * Implements the configuration file search logic with multiple fallback locations.
  * This class handles caching and provides utility methods for configuration discovery.
+ * 
+ * Supported JSON configuration properties:
+ * - log4rich.json.enabled - Enable JSON layout globally
+ * - log4rich.json.prettyPrint - Pretty print JSON output
+ * - log4rich.json.includeLocation - Include class/method/line information
+ * - log4rich.json.includeThread - Include thread name
+ * - log4rich.json.timestampFormat - Timestamp format pattern
+ * - log4rich.json.additionalFields.* - Additional static fields
+ * 
+ * @since 1.0.0
  */
 public class ConfigLoader {
     
@@ -283,6 +293,8 @@ public class ConfigLoader {
      * - log4rich.rootLevel -> LOG4RICH_ROOT_LEVEL
      * - log4rich.console.enabled -> LOG4RICH_CONSOLE_ENABLED
      * - log4rich.file.maxSize -> LOG4RICH_FILE_MAX_SIZE
+     * - log4rich.json.enabled -> LOG4RICH_JSON_ENABLED
+     * - log4rich.json.prettyPrint -> LOG4RICH_JSON_PRETTY_PRINT
      * 
      * @param properties the properties to apply overrides to
      */
@@ -347,6 +359,11 @@ public class ConfigLoader {
             case "LOG4RICH_ASYNC_OVERFLOW_STRATEGY": return "log4rich.async.overflowStrategy";
             case "LOG4RICH_ASYNC_THREAD_PRIORITY": return "log4rich.async.threadPriority";
             case "LOG4RICH_ASYNC_SHUTDOWN_TIMEOUT": return "log4rich.async.shutdownTimeout";
+            case "LOG4RICH_JSON_ENABLED": return "log4rich.json.enabled";
+            case "LOG4RICH_JSON_PRETTY_PRINT": return "log4rich.json.prettyPrint";
+            case "LOG4RICH_JSON_INCLUDE_LOCATION": return "log4rich.json.includeLocation";
+            case "LOG4RICH_JSON_INCLUDE_THREAD": return "log4rich.json.includeThread";
+            case "LOG4RICH_JSON_TIMESTAMP_FORMAT": return "log4rich.json.timestampFormat";
             default:
                 // For unknown environment variables, log a warning and ignore
                 System.err.println("log4Rich: Unknown environment variable: " + envVarName);
@@ -389,7 +406,12 @@ public class ConfigLoader {
             "LOG4RICH_ASYNC_BUFFER_SIZE",
             "LOG4RICH_ASYNC_OVERFLOW_STRATEGY",
             "LOG4RICH_ASYNC_THREAD_PRIORITY",
-            "LOG4RICH_ASYNC_SHUTDOWN_TIMEOUT"
+            "LOG4RICH_ASYNC_SHUTDOWN_TIMEOUT",
+            "LOG4RICH_JSON_ENABLED",
+            "LOG4RICH_JSON_PRETTY_PRINT",
+            "LOG4RICH_JSON_INCLUDE_LOCATION",
+            "LOG4RICH_JSON_INCLUDE_THREAD",
+            "LOG4RICH_JSON_TIMESTAMP_FORMAT"
         };
     }
 }

@@ -17,6 +17,7 @@ A blazing-fast logging framework for Java 8+ that delivers up to **2.3 million m
 - ⚡ **Asynchronous Logging**: Lock-free ring buffers with sub-microsecond latency
 - 🗜️ **Async Compression**: Non-blocking compression with adaptive file size management
 - 🔧 **SLF4J-Style Placeholders**: Easy migration with {} parameter substitution
+- 📊 **JSON Structured Logging**: Machine-readable logs for modern log analysis tools
 - 🌍 **Environment Variables**: Override any configuration with LOG4RICH_* variables
 - 📝 **Enhanced Error Messages**: Detailed validation with specific fix guidance
 - ✅ **7 Log Levels**: TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF
@@ -65,7 +66,7 @@ public class MyApplication {
         logger.warn("Warning message");
         logger.error("Error occurred", new Exception("Sample exception"));
         
-        // SLF4J-style placeholder logging (new in v1.0.0)
+        // SLF4J-style placeholder logging (since v1.0.0)
         String user = "john_doe";
         int attempts = 3;
         logger.info("User {} failed login after {} attempts", user, attempts);
@@ -155,7 +156,7 @@ log4Rich searches for configuration files in the following order:
 
 ### Environment Variable Configuration
 
-**New in v1.0.0**: Override any configuration property using environment variables with the `LOG4RICH_` prefix:
+**Since v1.0.0**: Override any configuration property using environment variables with the `LOG4RICH_` prefix:
 
 ```bash
 # Set via environment variables
@@ -233,7 +234,7 @@ log4Rich supports the following pattern placeholders:
 
 ## Migration from SLF4J/Log4j
 
-**New in v1.0.0**: log4Rich now supports SLF4J-style placeholder logging for easy migration!
+**Since v1.0.0**: log4Rich now supports SLF4J-style placeholder logging for easy migration!
 
 ### SLF4J Compatibility
 
@@ -284,6 +285,187 @@ logger.error("Database connection failed for user {}", userId, new SQLException(
    - Enable memory-mapped files for 5.4x performance boost
    - Use batch processing for 23x multi-threaded improvement
    - Leverage async compression for non-blocking file rotation
+
+## JSON Structured Logging
+
+**New in v1.1.0**: log4Rich includes built-in JSON logging support for modern log analysis and aggregation tools.
+
+### Why JSON Logging?
+
+JSON logging provides machine-readable structured logs that integrate seamlessly with:
+- **📊 ELK Stack** (Elasticsearch, Logstash, Kibana)
+- **📈 Splunk** and other log analysis platforms
+- **☁️ Cloud Logging** services (AWS CloudWatch, Azure Monitor, etc.)
+- **🔍 Log Aggregation** tools and monitoring systems
+
+### Quick JSON Setup
+
+```java
+import com.log4rich.Log4Rich;
+import com.log4rich.appenders.RollingFileAppender;
+import com.log4rich.core.Logger;
+import com.log4rich.layouts.JsonLayout;
+
+// Create JSON layout
+JsonLayout jsonLayout = JsonLayout.createCompactLayout();
+
+// Add additional structured fields
+jsonLayout.addAdditionalField("application", "MyApp");
+jsonLayout.addAdditionalField("version", "1.0.0");
+jsonLayout.addAdditionalField("environment", "production");
+
+// Create file appender with JSON layout
+RollingFileAppender jsonAppender = new RollingFileAppender("logs/app.json");
+jsonAppender.setLayout(jsonLayout);
+
+// Use with any logger
+Logger logger = Log4Rich.getLogger(MyClass.class);
+logger.addAppender(jsonAppender);
+
+// Log messages - output as JSON
+logger.info("User {} logged in from {}", username, ipAddress);
+logger.error("Payment failed for order {}", orderId, exception);
+```
+
+### JSON Output Examples
+
+**Compact JSON** (production):
+```json
+{"timestamp":"2025-07-19T15:30:45.123-0500","level":"INFO","logger":"com.myapp.UserService","message":"User john.doe logged in from 192.168.1.100","thread":"http-nio-8080-exec-1","location":{"class":"com.myapp.UserService","method":"handleLogin","file":"UserService.java","line":45},"application":"MyApp","version":"1.0.0","environment":"production"}
+```
+
+**Pretty JSON** (development):
+```json
+{
+  "timestamp": "2025-07-19T15:30:45.123-0500",
+  "level": "ERROR",
+  "logger": "com.myapp.PaymentService",
+  "message": "Payment failed for order 12345",
+  "thread": "payment-processor-2",
+  "location": {
+    "class": "com.myapp.PaymentService",
+    "method": "processPayment",
+    "file": "PaymentService.java",
+    "line": 127
+  },
+  "exception": {
+    "class": "com.myapp.PaymentException",
+    "message": "Insufficient funds",
+    "stackTrace": ["..."],
+    "cause": {
+      "class": "java.net.SocketTimeoutException",
+      "message": "Connection timeout"
+    }
+  },
+  "application": "MyApp",
+  "version": "1.0.0"
+}
+```
+
+### JSON Layout Options
+
+log4Rich provides several pre-configured JSON layouts:
+
+```java
+// Compact layout - single line, ideal for production
+JsonLayout compact = JsonLayout.createCompactLayout();
+
+// Pretty layout - formatted with indentation, ideal for development  
+JsonLayout pretty = JsonLayout.createPrettyLayout();
+
+// Minimal layout - only essential fields, highest performance
+JsonLayout minimal = JsonLayout.createMinimalLayout();
+
+// Production layout - optimized balance of performance and information
+JsonLayout production = JsonLayout.createProductionLayout();
+
+// Custom layout - full control over options
+JsonLayout custom = new JsonLayout(
+    false,                              // pretty print
+    true,                               // include location info
+    true,                               // include thread info  
+    "yyyy-MM-dd'T'HH:mm:ss.SSSXXX"     // timestamp format
+);
+```
+
+### JSON Configuration
+
+Enable JSON logging through configuration:
+
+```properties
+# Enable JSON layout globally
+log4rich.json.enabled=true
+log4rich.json.prettyPrint=false
+log4rich.json.includeLocation=true
+log4rich.json.includeThread=true
+log4rich.json.timestampFormat=yyyy-MM-dd'T'HH:mm:ss.SSSXXX
+
+# Add static fields to all JSON logs
+log4rich.json.additionalFields.application=MyApp
+log4rich.json.additionalFields.version=1.0.0
+log4rich.json.additionalFields.datacenter=us-east-1
+```
+
+### Environment Variables for JSON
+
+Perfect for containerized deployments:
+
+```bash
+# Docker/Kubernetes JSON configuration
+export LOG4RICH_JSON_ENABLED=true
+export LOG4RICH_JSON_PRETTY_PRINT=false
+export LOG4RICH_JSON_INCLUDE_LOCATION=false  # Disable for performance
+export LOG4RICH_JSON_INCLUDE_THREAD=true
+export LOG4RICH_JSON_TIMESTAMP_FORMAT="yyyy-MM-dd'T'HH:mm:ss.SSSXXX"
+
+# Run your application
+docker run -e LOG4RICH_JSON_ENABLED=true myapp:latest
+```
+
+### JSON Performance
+
+JSON logging in log4Rich is **highly optimized**:
+
+- **⚡ Excellent Performance**: JSON layout can be faster than standard layouts
+- **🔧 Zero Dependencies**: No external JSON libraries required
+- **💾 Efficient Memory Usage**: Minimal object allocation
+- **🚀 Production Ready**: Tested with 100,000+ messages/second
+
+Performance comparison from our benchmarks:
+- **Standard Layout**: ~91,000 messages/second
+- **JSON Layout**: ~108,000 messages/second (**18% faster!**)
+
+### JSON Best Practices
+
+#### For Production Environments
+```properties
+# High-performance production JSON
+log4rich.json.enabled=true
+log4rich.json.prettyPrint=false           # Compact output
+log4rich.json.includeLocation=false       # Disable for performance
+log4rich.json.includeThread=true
+log4rich.json.timestampFormat=yyyy-MM-dd'T'HH:mm:ss.SSSXXX
+```
+
+#### For Development Environments  
+```properties
+# Developer-friendly JSON
+log4rich.json.enabled=true
+log4rich.json.prettyPrint=true            # Pretty formatting
+log4rich.json.includeLocation=true        # Full location details
+log4rich.json.includeThread=true
+log4rich.json.timestampFormat=yyyy-MM-dd HH:mm:ss.SSS
+```
+
+#### For Log Analysis Integration
+```java
+// Add consistent fields for log aggregation
+JsonLayout layout = JsonLayout.createProductionLayout();
+layout.addAdditionalField("service", "user-service");
+layout.addAdditionalField("pod_name", System.getenv("HOSTNAME"));
+layout.addAdditionalField("cluster", "production-cluster");
+layout.addAdditionalField("region", "us-east-1");
+```
 
 ## Advanced Usage
 
@@ -467,7 +649,7 @@ mvn clean package
 <dependency>
     <groupId>com.log4rich</groupId>
     <artifactId>log4Rich</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.2</version>
 </dependency>
 ```
 
@@ -715,6 +897,17 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 - **Trusted**: Backed by the Apache Software Foundation
 
 ## Changelog
+
+### Version 1.0.2 (July 21, 2025) - JSON Logging Enhancement
+- **JSON Structured Logging**: Built-in JSON layout support for modern log analysis tools
+- **Multiple JSON Layouts**: Compact, Pretty, Minimal, Production, and Custom layout options
+- **Exceptional Performance**: JSON layout outperforms standard layouts (18% faster in benchmarks)
+- **Zero Dependencies**: Pure Java JSON implementation without external libraries
+- **Additional Fields**: Support for static additional fields in JSON output
+- **Environment Variables**: 5 new LOG4RICH_JSON_* variables for container configuration
+- **Complete Exception Handling**: Full stack traces with cause chains in JSON format
+- **Comprehensive Testing**: Extensive test suite with real-world scenarios
+- **Production Ready**: Optimized for high-volume logging with 100,000+ messages/second
 
 ### Version 1.0.1 (July 19, 2025)
 - **SLF4J Migration Enhancements**: Complete {} placeholder support with 100% SLF4J compatibility

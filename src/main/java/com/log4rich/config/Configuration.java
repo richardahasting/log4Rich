@@ -73,6 +73,13 @@ public class Configuration {
     private static final int DEFAULT_ASYNC_THREAD_PRIORITY = Thread.NORM_PRIORITY;
     private static final long DEFAULT_ASYNC_SHUTDOWN_TIMEOUT = 5000; // 5 seconds
     
+    // JSON layout defaults
+    private static final boolean DEFAULT_JSON_ENABLED = false;
+    private static final boolean DEFAULT_JSON_PRETTY_PRINT = false;
+    private static final boolean DEFAULT_JSON_INCLUDE_LOCATION = true;
+    private static final boolean DEFAULT_JSON_INCLUDE_THREAD = true;
+    private static final String DEFAULT_JSON_TIMESTAMP_FORMAT = "yyyy-MM-dd'T'HH:mm:ss.SSSZ";
+    
     private final Properties properties;
     private final Map<String, LogLevel> loggerLevels;
     
@@ -162,6 +169,13 @@ public class Configuration {
         properties.setProperty("log4rich.async.overflowStrategy", DEFAULT_ASYNC_OVERFLOW_STRATEGY);
         properties.setProperty("log4rich.async.threadPriority", String.valueOf(DEFAULT_ASYNC_THREAD_PRIORITY));
         properties.setProperty("log4rich.async.shutdownTimeout", String.valueOf(DEFAULT_ASYNC_SHUTDOWN_TIMEOUT));
+        
+        // JSON layout defaults
+        properties.setProperty("log4rich.json.enabled", String.valueOf(DEFAULT_JSON_ENABLED));
+        properties.setProperty("log4rich.json.prettyPrint", String.valueOf(DEFAULT_JSON_PRETTY_PRINT));
+        properties.setProperty("log4rich.json.includeLocation", String.valueOf(DEFAULT_JSON_INCLUDE_LOCATION));
+        properties.setProperty("log4rich.json.includeThread", String.valueOf(DEFAULT_JSON_INCLUDE_THREAD));
+        properties.setProperty("log4rich.json.timestampFormat", DEFAULT_JSON_TIMESTAMP_FORMAT);
     }
     
     /**
@@ -623,5 +637,62 @@ public class Configuration {
      */
     public Properties getProperties() {
         return properties;
+    }
+    
+    // JSON Layout Configuration Methods
+    
+    /**
+     * Checks if JSON layout is enabled.
+     * 
+     * @return true if JSON formatting should be used
+     */
+    public boolean isJsonEnabled() {
+        return Boolean.parseBoolean(properties.getProperty("log4rich.json.enabled"));
+    }
+    
+    /**
+     * Checks if JSON pretty printing is enabled.
+     * 
+     * @return true if JSON should be formatted with indentation and newlines
+     */
+    public boolean isJsonPrettyPrint() {
+        return Boolean.parseBoolean(properties.getProperty("log4rich.json.prettyPrint"));
+    }
+    
+    /**
+     * Checks if location information should be included in JSON output.
+     * 
+     * @return true if class, method, and line information should be included
+     */
+    public boolean isJsonIncludeLocation() {
+        return Boolean.parseBoolean(properties.getProperty("log4rich.json.includeLocation"));
+    }
+    
+    /**
+     * Checks if thread information should be included in JSON output.
+     * 
+     * @return true if thread name should be included
+     */
+    public boolean isJsonIncludeThread() {
+        return Boolean.parseBoolean(properties.getProperty("log4rich.json.includeThread"));
+    }
+    
+    /**
+     * Gets the timestamp format for JSON output.
+     * 
+     * @return the SimpleDateFormat pattern for timestamps
+     */
+    public String getJsonTimestampFormat() {
+        return properties.getProperty("log4rich.json.timestampFormat");
+    }
+    
+    /**
+     * Gets an additional JSON field value.
+     * 
+     * @param fieldName the name of the additional field
+     * @return the field value, or null if not set
+     */
+    public String getJsonAdditionalField(String fieldName) {
+        return properties.getProperty("log4rich.json.additionalFields." + fieldName);
     }
 }
