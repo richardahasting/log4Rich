@@ -18,6 +18,8 @@
 package com.log4rich.util;
 
 import com.log4rich.core.LogLevel;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Represents a single logging event with all associated metadata.
@@ -31,6 +33,33 @@ public class LoggingEvent {
     private final String threadName;
     private final LocationInfo locationInfo;
     private final Throwable throwable;
+    private final Map<String, String> mdc;
+    private final List<String> ndc;
+    
+    /**
+     * Creates a new LoggingEvent with all parameters including context.
+     * 
+     * @param level the log level
+     * @param message the log message
+     * @param loggerName the name of the logger
+     * @param locationInfo location information where the log occurred
+     * @param throwable optional exception associated with the log event
+     * @param mdc mapped diagnostic context data
+     * @param ndc nested diagnostic context data
+     */
+    public LoggingEvent(LogLevel level, String message, String loggerName, 
+                       LocationInfo locationInfo, Throwable throwable,
+                       Map<String, String> mdc, List<String> ndc) {
+        this.level = level;
+        this.message = message;
+        this.loggerName = loggerName;
+        this.timestamp = System.currentTimeMillis();
+        this.threadName = Thread.currentThread().getName();
+        this.locationInfo = locationInfo;
+        this.throwable = throwable;
+        this.mdc = mdc != null ? java.util.Collections.unmodifiableMap(mdc) : java.util.Collections.emptyMap();
+        this.ndc = ndc != null ? java.util.Collections.unmodifiableList(ndc) : java.util.Collections.emptyList();
+    }
     
     /**
      * Creates a new LoggingEvent with all parameters.
@@ -43,13 +72,7 @@ public class LoggingEvent {
      */
     public LoggingEvent(LogLevel level, String message, String loggerName, 
                        LocationInfo locationInfo, Throwable throwable) {
-        this.level = level;
-        this.message = message;
-        this.loggerName = loggerName;
-        this.timestamp = System.currentTimeMillis();
-        this.threadName = Thread.currentThread().getName();
-        this.locationInfo = locationInfo;
-        this.throwable = throwable;
+        this(level, message, loggerName, locationInfo, throwable, null, null);
     }
     
     /**
@@ -136,6 +159,33 @@ public class LoggingEvent {
      */
     public boolean hasThrowable() {
         return throwable != null;
+    }
+    
+    /**
+     * Gets the Mapped Diagnostic Context (MDC) data.
+     * 
+     * @return an immutable map of MDC data, never null
+     */
+    public Map<String, String> getMDC() {
+        return mdc;
+    }
+    
+    /**
+     * Gets the Nested Diagnostic Context (NDC) data.
+     * 
+     * @return an immutable list of NDC data, never null
+     */
+    public List<String> getNDC() {
+        return ndc;
+    }
+    
+    /**
+     * Checks if this event has context data (either MDC or NDC).
+     * 
+     * @return true if context data is present, false otherwise
+     */
+    public boolean hasContext() {
+        return !mdc.isEmpty() || !ndc.isEmpty();
     }
     
     /**

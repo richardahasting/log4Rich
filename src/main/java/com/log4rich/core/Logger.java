@@ -24,6 +24,7 @@ import com.log4rich.util.MessageFormatter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -36,6 +37,7 @@ public class Logger {
     private volatile LogLevel level;
     private final List<Appender> appenders;
     private volatile boolean locationCapture;
+    private volatile ContextProvider contextProvider;
     
     /**
      * Creates a new logger with the specified name.
@@ -48,6 +50,7 @@ public class Logger {
         this.level = LogLevel.INFO;
         this.appenders = new CopyOnWriteArrayList<>();
         this.locationCapture = true;
+        this.contextProvider = EmptyContextProvider.INSTANCE;
     }
     
     // Logging methods
@@ -434,6 +437,16 @@ public class Logger {
     }
     
     /**
+     * Generic logging method for any level without throwable.
+     * 
+     * @param level the log level
+     * @param message the log message
+     */
+    public void log(LogLevel level, String message) {
+        log(level, message, null);
+    }
+    
+    /**
      * Core logging method that processes the log event.
      * This method handles level checking, location capture, and appender dispatch.
      * 
@@ -441,7 +454,7 @@ public class Logger {
      * @param message the log message
      * @param throwable the throwable to log, may be null
      */
-    private void log(LogLevel level, String message, Throwable throwable) {
+    public void log(LogLevel level, String message, Throwable throwable) {
         if (!isLevelEnabled(level)) {
             return;
         }
@@ -453,7 +466,15 @@ public class Logger {
             locationInfo = LocationInfo.getCaller(3);
         }
         
-        LoggingEvent event = new LoggingEvent(level, message, name, locationInfo, throwable);
+        // Get context data if available
+        Map<String, String> mdc = null;
+        List<String> ndc = null;
+        if (contextProvider.hasContext()) {
+            mdc = contextProvider.getMDC();
+            ndc = contextProvider.getNDC();
+        }
+        
+        LoggingEvent event = new LoggingEvent(level, message, name, locationInfo, throwable, mdc, ndc);
         
         // Send to all appenders
         for (Appender appender : appenders) {
@@ -560,6 +581,27 @@ public class Logger {
      */
     public boolean isLocationCaptureEnabled() {
         return locationCapture;
+    }
+    
+    // Context provider management
+    
+    /**
+     * Sets the context provider for this logger.
+     * The context provider supplies MDC and NDC data for log events.
+     * 
+     * @param contextProvider the context provider to use, null to use empty provider
+     */
+    public void setContextProvider(ContextProvider contextProvider) {
+        this.contextProvider = contextProvider != null ? contextProvider : EmptyContextProvider.INSTANCE;
+    }
+    
+    /**
+     * Gets the current context provider.
+     * 
+     * @return the current context provider, never null
+     */
+    public ContextProvider getContextProvider() {
+        return contextProvider;
     }
     
     /**

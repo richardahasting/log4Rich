@@ -22,6 +22,8 @@ package com.log4rich.core;
  * Levels are ordered from most verbose (TRACE) to least verbose (OFF).
  */
 public enum LogLevel {
+    /** Enables all logging, most verbose level */
+    ALL(0),
     /** Most verbose logging level, shows all messages */
     TRACE(100),
     /** Debug level for detailed diagnostic information */
