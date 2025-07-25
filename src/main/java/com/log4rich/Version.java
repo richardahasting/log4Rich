@@ -35,7 +35,7 @@ public final class Version {
     // Core version information
     private static final String MAJOR_VERSION = "1";
     private static final String MINOR_VERSION = "0";
-    private static final String PATCH_VERSION = "2";
+    private static final String PATCH_VERSION = "4";
     private static final String BUILD_TYPE = "RELEASE";
     
     // Full version string
