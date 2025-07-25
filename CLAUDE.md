@@ -225,6 +225,16 @@ log4rich.console.enabled=true
 
 ## Development Commands
 
+### Repository Management
+**IMPORTANT**: Use `gh` (GitHub CLI) instead of `git` for all repository operations:
+```bash
+# Use gh for repository operations
+gh repo view               # View repository info
+gh pr create              # Create pull request
+gh pr list                # List pull requests
+gh issue create           # Create issues
+```
+
 ### Build and Test
 ```bash
 mvn clean compile          # Clean build
