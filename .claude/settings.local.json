@@ -14,7 +14,9 @@
       "Bash(chmod:*)",
       "Bash(./run-json-test.sh:*)",
       "Bash(find:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(java:*)"
     ],
     "deny": []
   }

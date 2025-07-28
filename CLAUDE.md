@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-log4Rich is a high-performance Java logging framework designed for ultra-fast logging with advanced features including memory-mapped files, batch processing, asynchronous logging, and adaptive compression management. Current version: **1.0.4-RELEASE**.
+log4Rich is a high-performance Java logging framework designed for ultra-fast logging with advanced features including memory-mapped files, batch processing, asynchronous logging, and adaptive compression management. Current version: **1.0.5-RELEASE**.
 
 ## Build and Development Commands
 

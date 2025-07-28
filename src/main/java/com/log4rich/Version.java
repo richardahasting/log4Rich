@@ -35,7 +35,7 @@ public final class Version {
     // Core version information
     private static final String MAJOR_VERSION = "1";
     private static final String MINOR_VERSION = "0";
-    private static final String PATCH_VERSION = "4";
+    private static final String PATCH_VERSION = "5";
     private static final String BUILD_TYPE = "RELEASE";
     
     // Full version string
@@ -43,8 +43,8 @@ public final class Version {
     private static final String FULL_VERSION = VERSION + "-" + BUILD_TYPE;
     
     // Build information
-    private static final String BUILD_DATE = "2025-07-19";
-    private static final String BUILD_TIME = "15:20:00 UTC";
+    private static final String BUILD_DATE = "2025-07-28";
+    private static final String BUILD_TIME = "20:50:00 UTC";
     private static final String BUILD_TIMESTAMP = BUILD_DATE + " " + BUILD_TIME;
     
     // Framework information
