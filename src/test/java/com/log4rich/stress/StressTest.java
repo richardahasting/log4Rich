@@ -22,12 +22,14 @@ import com.log4rich.core.LogLevel;
 import com.log4rich.core.Logger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import com.log4rich.util.Java8Utils;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -42,16 +44,10 @@ import static org.junit.jupiter.api.Assertions.*;
  * These tests push the framework to its limits to ensure robust performance
  * under heavy load and concurrent access scenarios.
  */
+@Tag("stress")
+@Tag("slow")
 public class StressTest {
     
-    // Helper method to replace String.repeat() which is Java 11+
-    private static String repeatString(String str, int count) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < count; i++) {
-            sb.append(str);
-        }
-        return sb.toString();
-    }
     
     @TempDir
     Path tempDir;
@@ -140,7 +136,7 @@ public class StressTest {
                 
                 for (int j = 0; j < messagesPerThread; j++) {
                     String message = String.format("Thread %d message %d: %s", 
-                                                  threadId, j, repeatString("A", 100));
+                                                  threadId, j, Java8Utils.repeat("A", 100));
                     
                     switch (j % 7) {
                         case 0: logger.trace(message); break;
@@ -374,7 +370,7 @@ public class StressTest {
         int numThreads = 5;
         int messagesPerThread = 500;
         String longMessage = "This is a long message that will help fill up the log file quickly: " + 
-                            repeatString("X", 200);
+                            Java8Utils.repeat("X", 200);
         
         List<Future<Void>> futures = new ArrayList<>();
         
@@ -500,7 +496,7 @@ public class StressTest {
         
         assertTrue(logFile.exists(), "Log file should exist");
         
-        String logContent = Files.readString(logFile.toPath());
+        String logContent = Java8Utils.readString(logFile.toPath());
         assertTrue(logContent.contains("Exception from thread"), 
                   "Log should contain exception messages");
         assertTrue(logContent.contains("at "), 

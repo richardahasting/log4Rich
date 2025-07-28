@@ -26,6 +26,7 @@ import com.log4rich.core.Logger;
 import com.log4rich.util.LoggingEvent;
 import com.log4rich.util.ObjectPools;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -52,6 +53,8 @@ import java.util.concurrent.TimeUnit;
  * @author log4Rich Contributors
  * @since 1.1.0
  */
+@Tag("performance")
+@Tag("slow")
 public class PerformanceBenchmarkTest {
     
     @TempDir

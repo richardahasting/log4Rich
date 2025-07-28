@@ -22,6 +22,7 @@ import com.log4rich.core.Logger;
 import com.log4rich.util.AsyncCompressionManager;
 import com.log4rich.util.CompressionManager;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -40,6 +41,7 @@ import static org.junit.jupiter.api.Assertions.*;
  * @author log4Rich Contributors
  * @since 1.1.0
  */
+@Tag("slow")
 public class AsyncCompressionTest {
     
     @TempDir

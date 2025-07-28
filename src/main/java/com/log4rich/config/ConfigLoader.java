@@ -19,6 +19,7 @@ package com.log4rich.config;
 
 import java.io.*;
 import java.util.Properties;
+import com.log4rich.util.Java8Utils;
 
 /**
  * Loads configuration from various sources in the search order specified.
@@ -141,11 +142,12 @@ public class ConfigLoader {
         try {
             cachedConfig = new Configuration(properties);
         } catch (ConfigurationException e) {
-            System.err.println("\n" + "=".repeat(80));
+            String separator = Java8Utils.repeat("=", 80);
+            System.err.println("\n" + separator);
             System.err.println("log4Rich Configuration Error");
-            System.err.println("=".repeat(80));
+            System.err.println(separator);
             System.err.println(e.getMessage());
-            System.err.println("=".repeat(80) + "\n");
+            System.err.println(separator + "\n");
             
             // For invalid configurations, fall back to defaults
             System.err.println("Falling back to default configuration to allow application startup.");
@@ -414,4 +416,5 @@ public class ConfigLoader {
             "LOG4RICH_JSON_TIMESTAMP_FORMAT"
         };
     }
+    
 }

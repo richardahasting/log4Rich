@@ -24,6 +24,7 @@ import com.log4rich.core.LogLevel;
 import com.log4rich.util.OverflowStrategy;
 import com.log4rich.util.RingBuffer;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -241,6 +242,7 @@ public class AsyncLoggingTest {
     }
     
     @Test
+    @Tag("slow")
     void testAsyncLoggerMultiThreadedAccess() throws Exception {
         AsyncLogger logger = new AsyncLogger("MultiThread", 1024);
         CountingAppender appender = new CountingAppender();
@@ -360,6 +362,7 @@ public class AsyncLoggingTest {
     }
     
     @Test
+    @Tag("slow")
     void testAsyncLoggerPerformanceCharacteristics() throws Exception {
         AsyncLogger asyncLogger = new AsyncLogger("PerfTest", 8192);
         CountingAppender asyncAppender = new CountingAppender();

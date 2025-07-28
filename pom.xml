@@ -81,6 +81,10 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.2</version>
+                <configuration>
+                    <!-- By default, exclude slow tests -->
+                    <excludedGroups>slow,performance,stress</excludedGroups>
+                </configuration>
             </plugin>
             
             <plugin>
@@ -121,4 +125,97 @@
             </plugin>
         </plugins>
     </build>
+    
+    <profiles>
+        <!-- Profile to run all tests including slow ones -->
+        <profile>
+            <id>all-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <!-- Include all tests -->
+                            <excludedGroups></excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <!-- Profile to run only slow tests -->
+        <profile>
+            <id>slow-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <!-- Include only slow tests -->
+                            <groups>slow,performance,stress</groups>
+                            <excludedGroups></excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <!-- Profile to run only performance tests -->
+        <profile>
+            <id>performance-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <!-- Include only performance tests -->
+                            <groups>performance</groups>
+                            <excludedGroups></excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <!-- Profile to run only stress tests -->
+        <profile>
+            <id>stress-tests</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <!-- Include only stress tests -->
+                            <groups>stress</groups>
+                            <excludedGroups></excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <!-- Profile for fast tests only (default behavior) -->
+        <profile>
+            <id>fast-tests</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-surefire-plugin</artifactId>
+                        <configuration>
+                            <!-- Explicitly exclude slow tests -->
+                            <excludedGroups>slow,performance,stress</excludedGroups>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

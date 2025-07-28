@@ -24,6 +24,7 @@ import com.log4rich.core.LogLevel;
 import com.log4rich.core.Logger;
 import com.log4rich.layouts.JsonLayout;
 import com.log4rich.layouts.StandardLayout;
+import com.log4rich.util.Java8Utils;
 
 import java.io.File;
 import java.util.Arrays;
@@ -54,9 +55,9 @@ public class JsonLoggingTestApp {
     private static final Random random = new Random();
     
     public static void main(String[] args) {
-        System.out.println("=".repeat(80));
+        System.out.println(Java8Utils.repeat("=", 80));
         System.out.println("         log4Rich JSON Logging Test Application");
-        System.out.println("=".repeat(80));
+        System.out.println(Java8Utils.repeat("=", 80));
         
         try {
             // Ensure logs directory exists
@@ -71,10 +72,10 @@ public class JsonLoggingTestApp {
             runMultiThreadedDemo();
             runConfigurationOptionsDemo();
             
-            System.out.println("\n" + "=".repeat(80));
+            System.out.println("\n" + Java8Utils.repeat("=", 80));
             System.out.println("✅ All JSON logging tests completed successfully!");
             System.out.println("📁 Check the 'logs/' directory for output files");
-            System.out.println("=".repeat(80));
+            System.out.println(Java8Utils.repeat("=", 80));
             
         } catch (Exception e) {
             System.err.println("❌ Test application failed: " + e.getMessage());
@@ -98,7 +99,7 @@ public class JsonLoggingTestApp {
      */
     private static void runBasicJsonLoggingDemo() {
         System.out.println("\n🔧 1. Basic JSON Logging Demo");
-        System.out.println("-".repeat(50));
+        System.out.println(Java8Utils.repeat("-", 50));
         
         // Create JSON layout appenders
         JsonLayout compactLayout = JsonLayout.createCompactLayout();
@@ -135,7 +136,7 @@ public class JsonLoggingTestApp {
      */
     private static void runLayoutComparisonDemo() {
         System.out.println("\n📊 2. Layout Comparison Demo");
-        System.out.println("-".repeat(50));
+        System.out.println(Java8Utils.repeat("-", 50));
         
         // Standard layout appender
         StandardLayout standardLayout = new StandardLayout("[%level] %date{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %class.%method:%line - %message%n");
@@ -167,7 +168,7 @@ public class JsonLoggingTestApp {
      */
     private static void runStructuredDataDemo() {
         System.out.println("\n🏗️  3. Structured Data Demo");
-        System.out.println("-".repeat(50));
+        System.out.println(Java8Utils.repeat("-", 50));
         
         // Create JSON layout with additional fields
         JsonLayout structuredLayout = JsonLayout.createCompactLayout();
@@ -197,7 +198,7 @@ public class JsonLoggingTestApp {
      */
     private static void runExceptionHandlingDemo() {
         System.out.println("\n🚨 4. Exception Handling Demo");
-        System.out.println("-".repeat(50));
+        System.out.println(Java8Utils.repeat("-", 50));
         
         JsonLayout exceptionLayout = JsonLayout.createCompactLayout();
         RollingFileAppender exceptionFile = new RollingFileAppender("logs/exceptions.log");
@@ -234,7 +235,7 @@ public class JsonLoggingTestApp {
      */
     private static void runPerformanceComparison() {
         System.out.println("\n⚡ 5. Performance Comparison");
-        System.out.println("-".repeat(50));
+        System.out.println(Java8Utils.repeat("-", 50));
         
         int messageCount = 10000;
         
@@ -291,7 +292,7 @@ public class JsonLoggingTestApp {
      */
     private static void runMultiThreadedDemo() {
         System.out.println("\n🔀 6. Multi-threaded JSON Logging Demo");
-        System.out.println("-".repeat(50));
+        System.out.println(Java8Utils.repeat("-", 50));
         
         JsonLayout threadLayout = JsonLayout.createCompactLayout();
         threadLayout.addAdditionalField("test_type", "multi_threaded");
@@ -350,7 +351,7 @@ public class JsonLoggingTestApp {
      */
     private static void runConfigurationOptionsDemo() {
         System.out.println("\n⚙️  7. Configuration Options Demo");
-        System.out.println("-".repeat(50));
+        System.out.println(Java8Utils.repeat("-", 50));
         
         // Test different layout configurations
         testMinimalLayout();

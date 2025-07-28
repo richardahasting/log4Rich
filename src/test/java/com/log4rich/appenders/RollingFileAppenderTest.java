@@ -22,6 +22,7 @@ import com.log4rich.layouts.StandardLayout;
 import com.log4rich.util.CompressionManager;
 import com.log4rich.util.LoggingEvent;
 import com.log4rich.util.LocationInfo;
+import com.log4rich.util.Java8Utils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -36,14 +37,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 public class RollingFileAppenderTest {
     
-    // Helper method to replace String.repeat() which is Java 11+
-    private static String repeatString(String str, int count) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < count; i++) {
-            sb.append(str);
-        }
-        return sb.toString();
-    }
     
     @TempDir
     Path tempDir;
@@ -80,7 +73,7 @@ public class RollingFileAppenderTest {
         appender.append(event);
         
         assertTrue(logFile.exists());
-        String content = Files.readString(logFile.toPath());
+        String content = Java8Utils.readString(logFile.toPath());
         assertTrue(content.contains("Test message"));
     }
     
@@ -115,7 +108,7 @@ public class RollingFileAppenderTest {
         for (int i = 0; i < 20; i++) {
             LoggingEvent event = new LoggingEvent(
                 LogLevel.INFO, 
-                "Message " + i + " - " + repeatString("x", 50), // Make message long enough to trigger rollover
+                "Message " + i + " - " + Java8Utils.repeat("x", 50), // Make message long enough to trigger rollover
                 "TestLogger", 
                 null
             );
@@ -141,7 +134,7 @@ public class RollingFileAppenderTest {
         appender.append(warnEvent);
         
         if (logFile.exists()) {
-            String content = Files.readString(logFile.toPath());
+            String content = Java8Utils.readString(logFile.toPath());
             assertFalse(content.contains("Debug message"));
             assertTrue(content.contains("Warning message"));
         }

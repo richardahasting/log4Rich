@@ -18,6 +18,7 @@ package com.log4rich.appenders;
 
 import com.log4rich.core.LogLevel;
 import com.log4rich.util.LoggingEvent;
+import com.log4rich.util.Java8Utils;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -61,7 +62,7 @@ class PerformanceAppendersTest {
         
         // Verify the file was created and has content
         assertTrue(Files.exists(logFile));
-        String content = Files.readString(logFile);
+        String content = Java8Utils.readString(logFile);
         assertFalse(content.isEmpty());
         assertTrue(content.contains("Test message 0"));
         assertTrue(content.contains("Test message 4"));
@@ -101,7 +102,7 @@ class PerformanceAppendersTest {
         
         // Verify the file was created and has content
         assertTrue(Files.exists(logFile));
-        String content = Files.readString(logFile);
+        String content = Java8Utils.readString(logFile);
         assertFalse(content.isEmpty());
         assertTrue(content.contains("Memory mapped message 0"));
         assertTrue(content.contains("Memory mapped message 4"));
