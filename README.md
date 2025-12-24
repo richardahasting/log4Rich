@@ -292,7 +292,7 @@ logger.error("Database connection failed for user {}", userId, new SQLException(
 
 ## JSON Structured Logging
 
-**New in v1.1.0**: log4Rich includes built-in JSON logging support for modern log analysis and aggregation tools.
+**New in v1.0.2**: log4Rich includes built-in JSON logging support for modern log analysis and aggregation tools.
 
 ### Why JSON Logging?
 
