@@ -5,6 +5,72 @@ All notable changes to the log4Rich project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.5] - 2025-12-23
+
+### Added - Enterprise Extensions Release
+
+#### Network Appenders
+- **TCPAppender**: Reliable TCP logging with auto-reconnect and retry logic
+- **UDPAppender**: Fast fire-and-forget UDP logging
+- **SyslogAppender**: RFC 3164 syslog protocol support with facility/severity mapping
+- **NetworkAppender Base**: Common retry logic and connection management
+
+#### Database Logging
+- **JDBCAppender**: Log to any JDBC-compatible database
+- **Batch Inserts**: Configurable batch size for high performance
+- **Auto Table Creation**: Automatic log table creation
+- **Statistics Tracking**: Message and batch counters
+
+#### JMX Management
+- **JMXManager**: Easy MBean registration/unregistration
+- **Log4RichMXBean**: Full JMX interface for monitoring
+- **Runtime Configuration**: Change log levels via JConsole/VisualVM
+- **Statistics Access**: Message counts, appender info, configuration summary
+
+#### Configuration Enhancements
+- **Configuration Hot Reload**: Automatic config file change detection
+- **ConfigurationWatcher**: File system monitoring with debouncing
+- **SLF4J 2.x Binding**: Native ServiceProvider implementation
+
+#### Log Level Additions
+- **CRITICAL Level**: Added as synonym for FATAL (priority 600)
+- **critical() Methods**: Full API support for CRITICAL level
+
+### Changed
+- Updated version to 1.0.5-RELEASE
+- Enhanced Appender interface with additional methods
+- Improved documentation with Phase 4 features
+
+## [1.0.4] - 2025-07-25
+
+### Changed - Bridge Integration Release
+- Updated version for connector bridge compatibility
+- Enhanced documentation for enterprise integration
+- Optimized performance metrics for bridge applications
+
+## [1.0.3] - 2025-07-22
+
+### Added - Competitive Analysis
+- Comprehensive competitive performance benchmarks
+- Enhanced ContextProvider interface
+- Performance leadership documentation
+
+## [1.0.2] - 2025-07-21
+
+### Added - JSON Logging
+- JSON structured logging support
+- Multiple JSON layout options (Compact, Pretty, Minimal, Production)
+- Zero-dependency JSON implementation
+- 18% faster than standard layouts in benchmarks
+
+## [1.0.1] - 2025-07-19
+
+### Added - SLF4J Migration
+- SLF4J-style {} placeholder support
+- 29 LOG4RICH_* environment variables
+- Enhanced error messages with fix guidance
+- Migration utilities for SLF4J/Log4j users
+
 ## [1.0.0] - 2025-07-19
 
 ### Added - Initial Release 🎉
@@ -93,6 +159,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Type | Description |
 |---------|------|------|-------------|
+| 1.0.5 | 2025-12-23 | Minor | Enterprise Extensions (Network, JDBC, JMX) |
+| 1.0.4 | 2025-07-25 | Patch | Bridge integration release |
+| 1.0.3 | 2025-07-22 | Patch | Competitive performance analysis |
+| 1.0.2 | 2025-07-21 | Minor | JSON structured logging |
+| 1.0.1 | 2025-07-19 | Minor | SLF4J migration support |
 | 1.0.0 | 2025-07-19 | Major | Initial release with full feature set |
 
 ## Upgrade Guide

@@ -37,14 +37,14 @@ public final class Version {
     private static final String MINOR_VERSION = "0";
     private static final String PATCH_VERSION = "5";
     private static final String BUILD_TYPE = "RELEASE";
-    
+
     // Full version string
     private static final String VERSION = MAJOR_VERSION + "." + MINOR_VERSION + "." + PATCH_VERSION;
     private static final String FULL_VERSION = VERSION + "-" + BUILD_TYPE;
-    
+
     // Build information
-    private static final String BUILD_DATE = "2025-07-28";
-    private static final String BUILD_TIME = "20:50:00 UTC";
+    private static final String BUILD_DATE = "2025-12-23";
+    private static final String BUILD_TIME = "22:00:00 UTC";
     private static final String BUILD_TIMESTAMP = BUILD_DATE + " " + BUILD_TIME;
     
     // Framework information
@@ -65,12 +65,14 @@ public final class Version {
     
     // Feature highlights for this version
     private static final String[] VERSION_FEATURES = {
+        "Network appenders (TCP, UDP, Syslog RFC 3164)",
+        "JDBC database appender with batch inserts",
+        "JMX management and monitoring",
+        "CRITICAL log level (synonym of FATAL)",
         "SLF4J-style {} placeholder support (100% compatible)",
         "Environment variable configuration (29 LOG4RICH_* variables)",
-        "Enhanced error messages with specific fix guidance",
-        "Migration utilities for SLF4J/Log4j users",
         "Asynchronous compression with adaptive management",
-        "Lock-free ring buffers for async logging", 
+        "Lock-free ring buffers for async logging",
         "Memory-mapped file I/O (5.4x performance)",
         "Intelligent batch processing (23x multi-threaded)",
         "Zero-allocation mode with object pools",

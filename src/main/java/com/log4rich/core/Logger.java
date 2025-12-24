@@ -167,7 +167,28 @@ public class Logger {
     public void fatal(String message, Throwable throwable) {
         log(LogLevel.FATAL, message, throwable);
     }
-    
+
+    /**
+     * Logs a message at CRITICAL level.
+     * CRITICAL is a synonym for FATAL with identical priority.
+     *
+     * @param message the message to log
+     */
+    public void critical(String message) {
+        log(LogLevel.CRITICAL, message, null);
+    }
+
+    /**
+     * Logs a message at CRITICAL level with an associated throwable.
+     * CRITICAL is a synonym for FATAL with identical priority.
+     *
+     * @param message the message to log
+     * @param throwable the throwable to log
+     */
+    public void critical(String message, Throwable throwable) {
+        log(LogLevel.CRITICAL, message, throwable);
+    }
+
     // SLF4J-style parameterized logging methods
     /**
      * Logs a message at TRACE level using SLF4J-style {} placeholders.
@@ -258,6 +279,22 @@ public class Logger {
             log(LogLevel.FATAL, formattedMessage, throwable);
         }
     }
+
+    /**
+     * Logs a message at CRITICAL level using SLF4J-style {} placeholders.
+     * CRITICAL is a synonym for FATAL with identical priority.
+     *
+     * @param messagePattern the message pattern with {} placeholders
+     * @param arguments the arguments to substitute into the pattern
+     */
+    public void critical(String messagePattern, Object... arguments) {
+        if (isCriticalEnabled()) {
+            Throwable throwable = MessageFormatter.extractThrowable(arguments);
+            Object[] args = MessageFormatter.removeThrowable(arguments, throwable);
+            String formattedMessage = MessageFormatter.format(messagePattern, args);
+            log(LogLevel.CRITICAL, formattedMessage, throwable);
+        }
+    }
     
     // Convenience methods for common error patterns with one argument and throwable
     /**
@@ -332,6 +369,21 @@ public class Logger {
         if (isFatalEnabled()) {
             String formattedMessage = MessageFormatter.format(messagePattern, argument);
             log(LogLevel.FATAL, formattedMessage, throwable);
+        }
+    }
+
+    /**
+     * Logs a message at CRITICAL level with one argument and an exception.
+     * CRITICAL is a synonym for FATAL with identical priority.
+     *
+     * @param messagePattern the message pattern with {} placeholder
+     * @param argument the argument to substitute
+     * @param throwable the exception to log
+     */
+    public void critical(String messagePattern, Object argument, Throwable throwable) {
+        if (isCriticalEnabled()) {
+            String formattedMessage = MessageFormatter.format(messagePattern, argument);
+            log(LogLevel.CRITICAL, formattedMessage, throwable);
         }
     }
     
@@ -421,6 +473,16 @@ public class Logger {
      */
     public boolean isFatalEnabled() {
         return isLevelEnabled(LogLevel.FATAL);
+    }
+
+    /**
+     * Checks if CRITICAL level is enabled for this logger.
+     * CRITICAL is a synonym for FATAL with identical priority.
+     *
+     * @return true if CRITICAL level is enabled, false otherwise
+     */
+    public boolean isCriticalEnabled() {
+        return isLevelEnabled(LogLevel.CRITICAL);
     }
     
     /**

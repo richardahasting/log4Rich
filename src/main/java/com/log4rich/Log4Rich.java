@@ -22,10 +22,14 @@ import com.log4rich.appenders.RollingFileAppender;
 import com.log4rich.config.Configuration;
 import com.log4rich.config.ConfigLoader;
 import com.log4rich.config.ConfigurationManager;
+import com.log4rich.config.ConfigurationWatcher;
 import com.log4rich.core.LogLevel;
 import com.log4rich.core.LogManager;
 import com.log4rich.core.Logger;
 import com.log4rich.layouts.StandardLayout;
+
+import java.io.IOException;
+import java.nio.file.Paths;
 
 /**
  * Main entry point and facade for the log4Rich logging framework.
@@ -53,6 +57,7 @@ public class Log4Rich {
     
     private static String configPath = null;
     private static volatile boolean initialized = false;
+    private static ConfigurationWatcher configWatcher = null;
     
     /**
      * Initializes the logging framework.
@@ -354,7 +359,7 @@ public class Log4Rich {
     /**
      * Reloads configuration from the original source.
      * This re-reads the configuration file and applies any changes.
-     * 
+     *
      * @throws Exception if configuration cannot be reloaded
      */
     public static void reloadConfiguration() throws Exception {
@@ -364,6 +369,87 @@ public class Log4Rich {
         } else {
             ConfigurationManager.reloadConfiguration();
         }
+    }
+
+    // ========== Hot Reload / Configuration Watching ==========
+
+    /**
+     * Enables configuration hot reload for the specified configuration file.
+     * Changes to the configuration file will be automatically detected and applied.
+     *
+     * <p>This method starts a background daemon thread that monitors the configuration
+     * file for changes using OS-level file system notifications.</p>
+     *
+     * @param configFilePath path to the configuration file to watch
+     * @throws IOException if unable to start the file watcher
+     */
+    public static void enableConfigurationHotReload(String configFilePath) throws IOException {
+        synchronized (Log4Rich.class) {
+            // Stop existing watcher if any
+            if (configWatcher != null) {
+                configWatcher.stop();
+            }
+
+            configPath = configFilePath;
+            configWatcher = new ConfigurationWatcher(configFilePath);
+            configWatcher.start();
+        }
+    }
+
+    /**
+     * Enables configuration hot reload with a reload listener.
+     * The listener will be notified whenever the configuration is reloaded.
+     *
+     * @param configFilePath path to the configuration file to watch
+     * @param listener listener to notify on configuration changes
+     * @throws IOException if unable to start the file watcher
+     */
+    public static void enableConfigurationHotReload(String configFilePath,
+                                                    ConfigurationWatcher.ConfigurationReloadListener listener)
+            throws IOException {
+        synchronized (Log4Rich.class) {
+            // Stop existing watcher if any
+            if (configWatcher != null) {
+                configWatcher.stop();
+            }
+
+            configPath = configFilePath;
+            configWatcher = new ConfigurationWatcher(configFilePath);
+            configWatcher.setReloadListener(listener);
+            configWatcher.start();
+        }
+    }
+
+    /**
+     * Disables configuration hot reload.
+     * Stops the file watcher and frees associated resources.
+     */
+    public static void disableConfigurationHotReload() {
+        synchronized (Log4Rich.class) {
+            if (configWatcher != null) {
+                configWatcher.stop();
+                configWatcher = null;
+            }
+        }
+    }
+
+    /**
+     * Checks if configuration hot reload is currently enabled.
+     *
+     * @return true if hot reload is enabled and watching, false otherwise
+     */
+    public static boolean isConfigurationHotReloadEnabled() {
+        return configWatcher != null && configWatcher.isRunning();
+    }
+
+    /**
+     * Gets the configuration watcher instance.
+     * Returns null if hot reload is not enabled.
+     *
+     * @return the configuration watcher, or null
+     */
+    public static ConfigurationWatcher getConfigurationWatcher() {
+        return configWatcher;
     }
     
     /**
@@ -390,9 +476,11 @@ public class Log4Rich {
     /**
      * Shuts down the logging framework.
      * This closes all loggers and their appenders, ensuring proper resource cleanup.
+     * Also stops the configuration watcher if hot reload is enabled.
      * After shutdown, the framework can be reinitialized on the next logging call.
      */
     public static void shutdown() {
+        disableConfigurationHotReload();
         LogManager.shutdown();
         ConfigurationManager.shutdown();
         initialized = false;

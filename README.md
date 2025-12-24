@@ -20,13 +20,17 @@ A blazing-fast logging framework for Java 8+ that delivers up to **2.3 million m
 - 📊 **JSON Structured Logging**: Machine-readable logs for modern log analysis tools
 - 🌍 **Environment Variables**: Override any configuration with LOG4RICH_* variables
 - 📝 **Enhanced Error Messages**: Detailed validation with specific fix guidance
-- ✅ **7 Log Levels**: TRACE, DEBUG, INFO, WARN, ERROR, FATAL, OFF
+- 🌐 **Network Appenders**: TCP, UDP, and Syslog (RFC 3164) for centralized logging
+- 🗄️ **JDBC Database Appender**: Log to databases with batch inserts and auto-table creation
+- 📈 **JMX Monitoring**: Runtime management via JConsole/VisualVM
+- ✅ **8 Log Levels**: TRACE, DEBUG, INFO, WARN, ERROR, CRITICAL, FATAL, OFF
 - ✅ **Thread-Safe**: Built for multi-CPU environments with concurrent logging
 - ✅ **Console Output**: Configurable STDOUT/STDERR with custom patterns
 - ✅ **Rolling File Appender**: Size-based file rotation with backup management
 - ✅ **External Compression**: Support for gzip, bzip2, xz, and custom compression programs
 - ✅ **Location Information**: Automatic capture of class name, method name, and line numbers
 - ✅ **Runtime Configuration**: Dynamic configuration changes without restart
+- ✅ **Configuration Hot Reload**: Automatic reload when config file changes
 - ✅ **Flexible Configuration**: File-based configuration with multiple search locations
 - ✅ **Maven Integration**: Easy build and dependency management
 
@@ -604,6 +608,145 @@ System.out.println("Active loggers: " + stats.getLoggerCount());
 System.out.println("Active appenders: " + stats.getAppenderCount());
 ```
 
+## Network Appenders
+
+**New in v1.0.5**: Send logs to remote servers via TCP, UDP, or Syslog protocols.
+
+### TCP Appender
+
+Reliable delivery with automatic reconnection:
+
+```java
+import com.log4rich.appenders.network.TCPAppender;
+
+TCPAppender tcpAppender = new TCPAppender("logserver.example.com", 9999);
+tcpAppender.setConnectionTimeout(10000);  // 10 seconds
+tcpAppender.setReconnectDelay(5000);      // 5 seconds between retries
+tcpAppender.setMaxRetries(3);
+tcpAppender.setKeepAlive(true);
+
+logger.addAppender(tcpAppender);
+```
+
+### UDP Appender
+
+Fast, fire-and-forget logging:
+
+```java
+import com.log4rich.appenders.network.UDPAppender;
+
+UDPAppender udpAppender = new UDPAppender("logserver.example.com", 9998);
+udpAppender.setMaxPacketSize(8192);
+
+logger.addAppender(udpAppender);
+```
+
+### Syslog Appender
+
+RFC 3164 compatible for integration with syslog servers:
+
+```java
+import com.log4rich.appenders.network.SyslogAppender;
+
+SyslogAppender syslogAppender = new SyslogAppender("syslog.example.com", 514);
+syslogAppender.setFacility(SyslogAppender.Facility.LOCAL0);
+syslogAppender.setAppName("myapp");
+syslogAppender.setHostname("webserver-01");
+
+logger.addAppender(syslogAppender);
+```
+
+## JDBC Database Appender
+
+**New in v1.0.5**: Log directly to databases with batch insert support.
+
+```java
+import com.log4rich.appenders.jdbc.JDBCAppender;
+
+// Create JDBC appender
+JDBCAppender dbAppender = new JDBCAppender(
+    "jdbc:mysql://localhost:3306/logs",
+    "loguser",
+    "password"
+);
+
+// Configure batch inserts for performance
+dbAppender.setTableName("application_logs");
+dbAppender.setBatchSize(50);              // Insert in batches of 50
+dbAppender.setFlushInterval(5000);        // Flush every 5 seconds
+dbAppender.setAutoCreateTable(true);      // Create table if not exists
+
+logger.addAppender(dbAppender);
+
+// Check statistics
+System.out.println("Messages written: " + dbAppender.getMessagesWritten());
+System.out.println("Batches written: " + dbAppender.getBatchesWritten());
+```
+
+**Default Table Schema** (auto-created):
+```sql
+CREATE TABLE log_entries (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    timestamp TIMESTAMP NOT NULL,
+    level VARCHAR(10) NOT NULL,
+    logger VARCHAR(255) NOT NULL,
+    thread VARCHAR(255),
+    message TEXT,
+    exception TEXT
+);
+```
+
+## JMX Monitoring
+
+**New in v1.0.5**: Monitor and manage log4Rich via JMX (JConsole, VisualVM).
+
+### Enable JMX
+
+```java
+import com.log4rich.jmx.JMXManager;
+
+// Register MBean on startup
+JMXManager.register();
+
+// Unregister on shutdown
+JMXManager.unregister();
+```
+
+### JMX ObjectName
+```
+com.log4rich:type=Log4Rich
+```
+
+### Available JMX Operations
+
+| Attribute/Operation | Description |
+|---------------------|-------------|
+| `Version` | Get log4Rich version |
+| `RootLevel` | Get/set root logger level |
+| `TotalMessagesLogged` | Total message count |
+| `MessagesPerLevel` | Messages by level |
+| `ActiveLoggerCount` | Number of active loggers |
+| `ActiveAppenderCount` | Number of appenders |
+| `HotReloadEnabled` | Check/toggle hot reload |
+| `reloadConfiguration()` | Reload config file |
+| `flushAll()` | Flush all appenders |
+| `resetStatistics()` | Reset message counters |
+| `getConfigurationSummary()` | Get config summary |
+
+### JMX Usage Example
+
+```java
+// Change log level via JMX at runtime
+JMXManager.getMBean().setRootLevel("DEBUG");
+
+// Get statistics
+long total = JMXManager.getMBean().getTotalMessagesLogged();
+Map<String, Long> perLevel = JMXManager.getMBean().getMessagesPerLevel();
+
+// Reload configuration
+JMXManager.getMBean().reloadConfiguration();
+```
+
 ## API Documentation
 
 The complete JavaDoc API documentation is available online at:
@@ -651,7 +794,7 @@ mvn clean package
 <dependency>
     <groupId>com.log4rich</groupId>
     <artifactId>log4Rich</artifactId>
-    <version>1.0.2</version>
+    <version>1.0.5</version>
 </dependency>
 ```
 
@@ -659,10 +802,10 @@ mvn clean package
 
 ```groovy
 // Groovy DSL
-implementation 'com.log4rich:log4Rich:1.0.2'
+implementation 'com.log4rich:log4Rich:1.0.5'
 
 // Kotlin DSL
-implementation("com.log4rich:log4Rich:1.0.2")
+implementation("com.log4rich:log4Rich:1.0.5")
 ```
 
 ## Integration with Existing Logging Frameworks
@@ -833,7 +976,17 @@ log4rich.performance.stringBuilderCapacity=1024
 - **RollingFileAppender**: File output with rotation
 - **MemoryMappedFileAppender**: Ultra-fast file I/O with memory mapping
 - **BatchingFileAppender**: High-throughput batch processing
+- **TCPAppender**: Reliable network logging over TCP
+- **UDPAppender**: Fast fire-and-forget network logging
+- **SyslogAppender**: RFC 3164 syslog protocol support
+- **JDBCAppender**: Database logging with batch inserts
 - **Appender Interface**: For custom appender implementations
+
+### JMX Management
+
+- **JMXManager**: JMX registration and management
+- **Log4RichMXBean**: JMX interface for monitoring
+- **Log4RichMXBeanImpl**: Runtime statistics and configuration
 
 ### Configuration
 
@@ -986,6 +1139,37 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 - **Trusted**: Backed by the Apache Software Foundation
 
 ## Changelog
+
+### Version 1.0.5 (December 23, 2025) - Enterprise Extensions
+
+- **Network Appenders**: TCP, UDP, and Syslog (RFC 3164) support for centralized logging
+  - TCPAppender with auto-reconnect and retry logic
+  - UDPAppender for fast fire-and-forget logging
+  - SyslogAppender with facility and severity mapping
+- **JDBC Database Appender**: Log to any JDBC-compatible database
+  - Batch inserts for high performance
+  - Auto table creation
+  - Statistics tracking
+- **JMX Management**: Full JMX MBean for monitoring and management
+  - Runtime log level changes via JConsole/VisualVM
+  - Message statistics per level
+  - Configuration reload operation
+- **CRITICAL Log Level**: Added as synonym for FATAL (priority 600)
+- **Configuration Hot Reload**: Automatic reload when config file changes
+- **SLF4J 2.x Binding**: Native SLF4J ServiceProvider support
+
+### Version 1.0.4 (July 25, 2025) - Bridge Integration Release
+
+- Updated version for connector bridge compatibility
+- Enhanced documentation for enterprise integration
+- Optimized performance metrics for bridge applications
+
+### Version 1.0.3 (July 22, 2025) - Competitive Performance Analysis
+
+- Comprehensive competitive performance analysis and benchmarks
+- Enhanced ContextProvider interface for advanced integrations
+- Performance leadership demonstration (100% faster than Logback)
+- Grade A+ enterprise reliability validation
 
 ### Version 1.0.2 (July 21, 2025) - JSON Logging Enhancement
 - **JSON Structured Logging**: Built-in JSON layout support for modern log analysis tools

@@ -20,6 +20,9 @@ package com.log4rich.core;
 /**
  * Enumeration of logging levels supported by log4Rich.
  * Levels are ordered from most verbose (TRACE) to least verbose (OFF).
+ *
+ * <p>Note: CRITICAL and FATAL are synonyms with the same priority level (600).
+ * Both can be used interchangeably in configuration and code.</p>
  */
 public enum LogLevel {
     /** Enables all logging, most verbose level */
@@ -36,6 +39,8 @@ public enum LogLevel {
     ERROR(500),
     /** Fatal level for severe error events that will lead to application termination */
     FATAL(600),
+    /** Critical level - synonym for FATAL with identical priority */
+    CRITICAL(600),
     /** Turns off all logging */
     OFF(Integer.MAX_VALUE);
     

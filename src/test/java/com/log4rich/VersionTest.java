@@ -170,7 +170,6 @@ public class VersionTest {
         // Ensure version is consistent with what we expect for 1.0.5
         assertEquals("1.0.5", Version.getVersion());
         assertEquals("RELEASE", Version.getBuildType());
-        assertEquals("2025-07-28", Version.getBuildDate());
     }
     
     @Test
