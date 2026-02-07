@@ -19,6 +19,7 @@ package com.log4rich.slf4j;
 
 import com.log4rich.core.LogLevel;
 import com.log4rich.core.Logger;
+import com.log4rich.util.MessageFormatter;
 import org.slf4j.Marker;
 import org.slf4j.event.Level;
 import org.slf4j.spi.LoggingEventBuilder;
@@ -30,6 +31,11 @@ import org.slf4j.spi.NOPLoggingEventBuilder;
  * <p>This adapter allows applications using SLF4J to use log4Rich as their
  * logging backend. It implements the SLF4J Logger interface and delegates
  * all logging calls to the underlying log4Rich Logger.</p>
+ *
+ * <p><strong>Important:</strong> All methods call {@code logger.log(LogLevel, msg, throwable)}
+ * directly instead of convenience methods like {@code logger.info(msg)} to ensure
+ * correct caller location capture. The stack frame count in LocationInfo.getCaller(3)
+ * expects exactly: getCaller → Logger.log → adapter method → application code.</p>
  *
  * @author log4Rich Contributors
  * @since 1.0.5
@@ -64,35 +70,40 @@ public class Log4RichLoggerAdapter implements org.slf4j.Logger {
     @Override
     public void trace(String msg) {
         if (isTraceEnabled()) {
-            logger.trace(msg);
+            logger.log(LogLevel.TRACE, msg, null);
         }
     }
 
     @Override
     public void trace(String format, Object arg) {
         if (isTraceEnabled()) {
-            logger.trace(format, arg);
+            String formattedMessage = MessageFormatter.format(format, arg);
+            logger.log(LogLevel.TRACE, formattedMessage, null);
         }
     }
 
     @Override
     public void trace(String format, Object arg1, Object arg2) {
         if (isTraceEnabled()) {
-            logger.trace(format, arg1, arg2);
+            String formattedMessage = MessageFormatter.format(format, arg1, arg2);
+            logger.log(LogLevel.TRACE, formattedMessage, null);
         }
     }
 
     @Override
     public void trace(String format, Object... arguments) {
         if (isTraceEnabled()) {
-            logger.trace(format, arguments);
+            Throwable throwable = MessageFormatter.extractThrowable(arguments);
+            Object[] args = MessageFormatter.removeThrowable(arguments, throwable);
+            String formattedMessage = MessageFormatter.format(format, args);
+            logger.log(LogLevel.TRACE, formattedMessage, throwable);
         }
     }
 
     @Override
     public void trace(String msg, Throwable t) {
         if (isTraceEnabled()) {
-            logger.trace(msg, t);
+            logger.log(LogLevel.TRACE, msg, t);
         }
     }
 
@@ -103,27 +114,42 @@ public class Log4RichLoggerAdapter implements org.slf4j.Logger {
 
     @Override
     public void trace(Marker marker, String msg) {
-        trace(msg);
+        if (isTraceEnabled()) {
+            logger.log(LogLevel.TRACE, msg, null);
+        }
     }
 
     @Override
     public void trace(Marker marker, String format, Object arg) {
-        trace(format, arg);
+        if (isTraceEnabled()) {
+            String formattedMessage = MessageFormatter.format(format, arg);
+            logger.log(LogLevel.TRACE, formattedMessage, null);
+        }
     }
 
     @Override
     public void trace(Marker marker, String format, Object arg1, Object arg2) {
-        trace(format, arg1, arg2);
+        if (isTraceEnabled()) {
+            String formattedMessage = MessageFormatter.format(format, arg1, arg2);
+            logger.log(LogLevel.TRACE, formattedMessage, null);
+        }
     }
 
     @Override
     public void trace(Marker marker, String format, Object... argArray) {
-        trace(format, argArray);
+        if (isTraceEnabled()) {
+            Throwable throwable = MessageFormatter.extractThrowable(argArray);
+            Object[] args = MessageFormatter.removeThrowable(argArray, throwable);
+            String formattedMessage = MessageFormatter.format(format, args);
+            logger.log(LogLevel.TRACE, formattedMessage, throwable);
+        }
     }
 
     @Override
     public void trace(Marker marker, String msg, Throwable t) {
-        trace(msg, t);
+        if (isTraceEnabled()) {
+            logger.log(LogLevel.TRACE, msg, t);
+        }
     }
 
     // ========== DEBUG ==========
@@ -136,35 +162,40 @@ public class Log4RichLoggerAdapter implements org.slf4j.Logger {
     @Override
     public void debug(String msg) {
         if (isDebugEnabled()) {
-            logger.debug(msg);
+            logger.log(LogLevel.DEBUG, msg, null);
         }
     }
 
     @Override
     public void debug(String format, Object arg) {
         if (isDebugEnabled()) {
-            logger.debug(format, arg);
+            String formattedMessage = MessageFormatter.format(format, arg);
+            logger.log(LogLevel.DEBUG, formattedMessage, null);
         }
     }
 
     @Override
     public void debug(String format, Object arg1, Object arg2) {
         if (isDebugEnabled()) {
-            logger.debug(format, arg1, arg2);
+            String formattedMessage = MessageFormatter.format(format, arg1, arg2);
+            logger.log(LogLevel.DEBUG, formattedMessage, null);
         }
     }
 
     @Override
     public void debug(String format, Object... arguments) {
         if (isDebugEnabled()) {
-            logger.debug(format, arguments);
+            Throwable throwable = MessageFormatter.extractThrowable(arguments);
+            Object[] args = MessageFormatter.removeThrowable(arguments, throwable);
+            String formattedMessage = MessageFormatter.format(format, args);
+            logger.log(LogLevel.DEBUG, formattedMessage, throwable);
         }
     }
 
     @Override
     public void debug(String msg, Throwable t) {
         if (isDebugEnabled()) {
-            logger.debug(msg, t);
+            logger.log(LogLevel.DEBUG, msg, t);
         }
     }
 
@@ -175,27 +206,42 @@ public class Log4RichLoggerAdapter implements org.slf4j.Logger {
 
     @Override
     public void debug(Marker marker, String msg) {
-        debug(msg);
+        if (isDebugEnabled()) {
+            logger.log(LogLevel.DEBUG, msg, null);
+        }
     }
 
     @Override
     public void debug(Marker marker, String format, Object arg) {
-        debug(format, arg);
+        if (isDebugEnabled()) {
+            String formattedMessage = MessageFormatter.format(format, arg);
+            logger.log(LogLevel.DEBUG, formattedMessage, null);
+        }
     }
 
     @Override
     public void debug(Marker marker, String format, Object arg1, Object arg2) {
-        debug(format, arg1, arg2);
+        if (isDebugEnabled()) {
+            String formattedMessage = MessageFormatter.format(format, arg1, arg2);
+            logger.log(LogLevel.DEBUG, formattedMessage, null);
+        }
     }
 
     @Override
     public void debug(Marker marker, String format, Object... arguments) {
-        debug(format, arguments);
+        if (isDebugEnabled()) {
+            Throwable throwable = MessageFormatter.extractThrowable(arguments);
+            Object[] args = MessageFormatter.removeThrowable(arguments, throwable);
+            String formattedMessage = MessageFormatter.format(format, args);
+            logger.log(LogLevel.DEBUG, formattedMessage, throwable);
+        }
     }
 
     @Override
     public void debug(Marker marker, String msg, Throwable t) {
-        debug(msg, t);
+        if (isDebugEnabled()) {
+            logger.log(LogLevel.DEBUG, msg, t);
+        }
     }
 
     // ========== INFO ==========
@@ -208,35 +254,40 @@ public class Log4RichLoggerAdapter implements org.slf4j.Logger {
     @Override
     public void info(String msg) {
         if (isInfoEnabled()) {
-            logger.info(msg);
+            logger.log(LogLevel.INFO, msg, null);
         }
     }
 
     @Override
     public void info(String format, Object arg) {
         if (isInfoEnabled()) {
-            logger.info(format, arg);
+            String formattedMessage = MessageFormatter.format(format, arg);
+            logger.log(LogLevel.INFO, formattedMessage, null);
         }
     }
 
     @Override
     public void info(String format, Object arg1, Object arg2) {
         if (isInfoEnabled()) {
-            logger.info(format, arg1, arg2);
+            String formattedMessage = MessageFormatter.format(format, arg1, arg2);
+            logger.log(LogLevel.INFO, formattedMessage, null);
         }
     }
 
     @Override
     public void info(String format, Object... arguments) {
         if (isInfoEnabled()) {
-            logger.info(format, arguments);
+            Throwable throwable = MessageFormatter.extractThrowable(arguments);
+            Object[] args = MessageFormatter.removeThrowable(arguments, throwable);
+            String formattedMessage = MessageFormatter.format(format, args);
+            logger.log(LogLevel.INFO, formattedMessage, throwable);
         }
     }
 
     @Override
     public void info(String msg, Throwable t) {
         if (isInfoEnabled()) {
-            logger.info(msg, t);
+            logger.log(LogLevel.INFO, msg, t);
         }
     }
 
@@ -247,27 +298,42 @@ public class Log4RichLoggerAdapter implements org.slf4j.Logger {
 
     @Override
     public void info(Marker marker, String msg) {
-        info(msg);
+        if (isInfoEnabled()) {
+            logger.log(LogLevel.INFO, msg, null);
+        }
     }
 
     @Override
     public void info(Marker marker, String format, Object arg) {
-        info(format, arg);
+        if (isInfoEnabled()) {
+            String formattedMessage = MessageFormatter.format(format, arg);
+            logger.log(LogLevel.INFO, formattedMessage, null);
+        }
     }
 
     @Override
     public void info(Marker marker, String format, Object arg1, Object arg2) {
-        info(format, arg1, arg2);
+        if (isInfoEnabled()) {
+            String formattedMessage = MessageFormatter.format(format, arg1, arg2);
+            logger.log(LogLevel.INFO, formattedMessage, null);
+        }
     }
 
     @Override
     public void info(Marker marker, String format, Object... arguments) {
-        info(format, arguments);
+        if (isInfoEnabled()) {
+            Throwable throwable = MessageFormatter.extractThrowable(arguments);
+            Object[] args = MessageFormatter.removeThrowable(arguments, throwable);
+            String formattedMessage = MessageFormatter.format(format, args);
+            logger.log(LogLevel.INFO, formattedMessage, throwable);
+        }
     }
 
     @Override
     public void info(Marker marker, String msg, Throwable t) {
-        info(msg, t);
+        if (isInfoEnabled()) {
+            logger.log(LogLevel.INFO, msg, t);
+        }
     }
 
     // ========== WARN ==========
@@ -280,35 +346,40 @@ public class Log4RichLoggerAdapter implements org.slf4j.Logger {
     @Override
     public void warn(String msg) {
         if (isWarnEnabled()) {
-            logger.warn(msg);
+            logger.log(LogLevel.WARN, msg, null);
         }
     }
 
     @Override
     public void warn(String format, Object arg) {
         if (isWarnEnabled()) {
-            logger.warn(format, arg);
+            String formattedMessage = MessageFormatter.format(format, arg);
+            logger.log(LogLevel.WARN, formattedMessage, null);
         }
     }
 
     @Override
     public void warn(String format, Object... arguments) {
         if (isWarnEnabled()) {
-            logger.warn(format, arguments);
+            Throwable throwable = MessageFormatter.extractThrowable(arguments);
+            Object[] args = MessageFormatter.removeThrowable(arguments, throwable);
+            String formattedMessage = MessageFormatter.format(format, args);
+            logger.log(LogLevel.WARN, formattedMessage, throwable);
         }
     }
 
     @Override
     public void warn(String format, Object arg1, Object arg2) {
         if (isWarnEnabled()) {
-            logger.warn(format, arg1, arg2);
+            String formattedMessage = MessageFormatter.format(format, arg1, arg2);
+            logger.log(LogLevel.WARN, formattedMessage, null);
         }
     }
 
     @Override
     public void warn(String msg, Throwable t) {
         if (isWarnEnabled()) {
-            logger.warn(msg, t);
+            logger.log(LogLevel.WARN, msg, t);
         }
     }
 
@@ -319,27 +390,42 @@ public class Log4RichLoggerAdapter implements org.slf4j.Logger {
 
     @Override
     public void warn(Marker marker, String msg) {
-        warn(msg);
+        if (isWarnEnabled()) {
+            logger.log(LogLevel.WARN, msg, null);
+        }
     }
 
     @Override
     public void warn(Marker marker, String format, Object arg) {
-        warn(format, arg);
+        if (isWarnEnabled()) {
+            String formattedMessage = MessageFormatter.format(format, arg);
+            logger.log(LogLevel.WARN, formattedMessage, null);
+        }
     }
 
     @Override
     public void warn(Marker marker, String format, Object arg1, Object arg2) {
-        warn(format, arg1, arg2);
+        if (isWarnEnabled()) {
+            String formattedMessage = MessageFormatter.format(format, arg1, arg2);
+            logger.log(LogLevel.WARN, formattedMessage, null);
+        }
     }
 
     @Override
     public void warn(Marker marker, String format, Object... arguments) {
-        warn(format, arguments);
+        if (isWarnEnabled()) {
+            Throwable throwable = MessageFormatter.extractThrowable(arguments);
+            Object[] args = MessageFormatter.removeThrowable(arguments, throwable);
+            String formattedMessage = MessageFormatter.format(format, args);
+            logger.log(LogLevel.WARN, formattedMessage, throwable);
+        }
     }
 
     @Override
     public void warn(Marker marker, String msg, Throwable t) {
-        warn(msg, t);
+        if (isWarnEnabled()) {
+            logger.log(LogLevel.WARN, msg, t);
+        }
     }
 
     // ========== ERROR ==========
@@ -352,35 +438,40 @@ public class Log4RichLoggerAdapter implements org.slf4j.Logger {
     @Override
     public void error(String msg) {
         if (isErrorEnabled()) {
-            logger.error(msg);
+            logger.log(LogLevel.ERROR, msg, null);
         }
     }
 
     @Override
     public void error(String format, Object arg) {
         if (isErrorEnabled()) {
-            logger.error(format, arg);
+            String formattedMessage = MessageFormatter.format(format, arg);
+            logger.log(LogLevel.ERROR, formattedMessage, null);
         }
     }
 
     @Override
     public void error(String format, Object arg1, Object arg2) {
         if (isErrorEnabled()) {
-            logger.error(format, arg1, arg2);
+            String formattedMessage = MessageFormatter.format(format, arg1, arg2);
+            logger.log(LogLevel.ERROR, formattedMessage, null);
         }
     }
 
     @Override
     public void error(String format, Object... arguments) {
         if (isErrorEnabled()) {
-            logger.error(format, arguments);
+            Throwable throwable = MessageFormatter.extractThrowable(arguments);
+            Object[] args = MessageFormatter.removeThrowable(arguments, throwable);
+            String formattedMessage = MessageFormatter.format(format, args);
+            logger.log(LogLevel.ERROR, formattedMessage, throwable);
         }
     }
 
     @Override
     public void error(String msg, Throwable t) {
         if (isErrorEnabled()) {
-            logger.error(msg, t);
+            logger.log(LogLevel.ERROR, msg, t);
         }
     }
 
@@ -391,27 +482,42 @@ public class Log4RichLoggerAdapter implements org.slf4j.Logger {
 
     @Override
     public void error(Marker marker, String msg) {
-        error(msg);
+        if (isErrorEnabled()) {
+            logger.log(LogLevel.ERROR, msg, null);
+        }
     }
 
     @Override
     public void error(Marker marker, String format, Object arg) {
-        error(format, arg);
+        if (isErrorEnabled()) {
+            String formattedMessage = MessageFormatter.format(format, arg);
+            logger.log(LogLevel.ERROR, formattedMessage, null);
+        }
     }
 
     @Override
     public void error(Marker marker, String format, Object arg1, Object arg2) {
-        error(format, arg1, arg2);
+        if (isErrorEnabled()) {
+            String formattedMessage = MessageFormatter.format(format, arg1, arg2);
+            logger.log(LogLevel.ERROR, formattedMessage, null);
+        }
     }
 
     @Override
     public void error(Marker marker, String format, Object... arguments) {
-        error(format, arguments);
+        if (isErrorEnabled()) {
+            Throwable throwable = MessageFormatter.extractThrowable(arguments);
+            Object[] args = MessageFormatter.removeThrowable(arguments, throwable);
+            String formattedMessage = MessageFormatter.format(format, args);
+            logger.log(LogLevel.ERROR, formattedMessage, throwable);
+        }
     }
 
     @Override
     public void error(Marker marker, String msg, Throwable t) {
-        error(msg, t);
+        if (isErrorEnabled()) {
+            logger.log(LogLevel.ERROR, msg, t);
+        }
     }
 
     // ========== SLF4J 2.x Fluent API ==========

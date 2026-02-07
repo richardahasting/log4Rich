@@ -18,6 +18,7 @@
 package com.log4rich.slf4j;
 
 import com.log4rich.Version;
+import com.log4rich.core.LogManager;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.IMarkerFactory;
 import org.slf4j.helpers.BasicMarkerFactory;
@@ -67,6 +68,9 @@ public class Log4RichServiceProvider implements SLF4JServiceProvider {
      */
     @Override
     public void initialize() {
+        // Initialize the logging system (loads config, creates default appenders)
+        LogManager.initialize();
+
         loggerFactory = new Log4RichLoggerFactory();
         markerFactory = new BasicMarkerFactory();
         mdcAdapter = new NOPMDCAdapter();

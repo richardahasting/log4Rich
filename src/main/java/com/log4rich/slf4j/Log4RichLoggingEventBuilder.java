@@ -117,48 +117,8 @@ public class Log4RichLoggingEventBuilder implements LoggingEventBuilder {
             formattedMessage = message;
         }
 
-        // Log based on level
-        switch (level) {
-            case TRACE:
-                if (throwable != null) {
-                    logger.trace(formattedMessage, throwable);
-                } else {
-                    logger.trace(formattedMessage);
-                }
-                break;
-            case DEBUG:
-                if (throwable != null) {
-                    logger.debug(formattedMessage, throwable);
-                } else {
-                    logger.debug(formattedMessage);
-                }
-                break;
-            case INFO:
-                if (throwable != null) {
-                    logger.info(formattedMessage, throwable);
-                } else {
-                    logger.info(formattedMessage);
-                }
-                break;
-            case WARN:
-                if (throwable != null) {
-                    logger.warn(formattedMessage, throwable);
-                } else {
-                    logger.warn(formattedMessage);
-                }
-                break;
-            case ERROR:
-            case FATAL:
-                if (throwable != null) {
-                    logger.error(formattedMessage, throwable);
-                } else {
-                    logger.error(formattedMessage);
-                }
-                break;
-            default:
-                // OFF or unknown level - don't log
-                break;
-        }
+        // Call logger.log() directly to keep correct stack frame depth for LocationInfo
+        logger.log(level, formattedMessage, throwable);
     }
 
     @Override
