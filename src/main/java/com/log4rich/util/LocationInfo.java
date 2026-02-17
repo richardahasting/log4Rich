@@ -44,21 +44,59 @@ public class LocationInfo {
         this.lineNumber = lineNumber;
     }
     
+    /** Package prefixes to skip when walking the stack to find the real caller. */
+    private static final String[] LOGGING_PACKAGES = {
+        "com.log4rich.",
+        "org.slf4j.",
+        "org.apache.commons.logging.",
+        "java.lang.",
+    };
+
+    /**
+     * Create LocationInfo by walking the stack trace and skipping frames from
+     * known logging framework packages. Returns the first frame whose class
+     * does not belong to a logging infrastructure package.
+     *
+     * <p>This approach is adapter-depth independent — it works regardless of
+     * how many bridge layers (SLF4J, commons-logging, spring-jcl) sit between
+     * the application code and the log4Rich core.</p>
+     *
+     * @return LocationInfo for the application caller, or null if unable to determine
+     */
+    public static LocationInfo getCaller() {
+        StackTraceElement[] stack = Thread.currentThread().getStackTrace();
+
+        for (int i = 1; i < stack.length; i++) {
+            String className = stack[i].getClassName();
+            if (!isLoggingFrame(className)) {
+                return new LocationInfo(
+                    className,
+                    stack[i].getMethodName(),
+                    stack[i].getFileName(),
+                    stack[i].getLineNumber()
+                );
+            }
+        }
+        return null;
+    }
+
     /**
      * Create LocationInfo by analyzing the current stack trace.
      * @param skipFrames Number of stack frames to skip (typically 2-3 for logger calls)
      * @return LocationInfo object or null if unable to determine
+     * @deprecated Use {@link #getCaller()} instead, which is adapter-depth independent.
      */
+    @Deprecated
     public static LocationInfo getCaller(int skipFrames) {
         StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-        
+
         // Skip getStackTrace() call + skipFrames
         int targetFrame = 1 + skipFrames;
-        
+
         if (stack.length <= targetFrame) {
             return null;
         }
-        
+
         StackTraceElement element = stack[targetFrame];
         return new LocationInfo(
             element.getClassName(),
@@ -66,6 +104,15 @@ public class LocationInfo {
             element.getFileName(),
             element.getLineNumber()
         );
+    }
+
+    private static boolean isLoggingFrame(String className) {
+        for (String prefix : LOGGING_PACKAGES) {
+            if (className.startsWith(prefix)) {
+                return true;
+            }
+        }
+        return false;
     }
     
     /**

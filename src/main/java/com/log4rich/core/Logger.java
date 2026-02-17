@@ -524,8 +524,7 @@ public class Logger {
         // Capture location info if enabled
         LocationInfo locationInfo = null;
         if (locationCapture) {
-            // Skip 3 frames: getStackTrace, getCaller, this log method
-            locationInfo = LocationInfo.getCaller(3);
+            locationInfo = LocationInfo.getCaller();
         }
         
         // Get context data if available
