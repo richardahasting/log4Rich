@@ -43,7 +43,8 @@ public class ConfigurationManagerTest {
     void setUp() {
         // Reset configuration before each test
         Log4Rich.shutdown();
-        
+        ConfigLoader.clearCache();
+
         // Create a minimal configuration without console and file appenders
         Properties props = new Properties();
         props.setProperty("log4rich.console.enabled", "false");

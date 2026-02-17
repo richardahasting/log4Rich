@@ -34,21 +34,21 @@ public class VersionTest {
         assertNotNull(version);
         assertFalse(version.isEmpty());
         assertTrue(version.matches("\\d+\\.\\d+\\.\\d+"));
-        assertEquals("1.0.6", version);
+        assertEquals("1.0.7", version);
     }
     
     @Test
     void testVersionComponents() {
         assertEquals("1", Version.getMajorVersion());
         assertEquals("0", Version.getMinorVersion());
-        assertEquals("6", Version.getPatchVersion());
+        assertEquals("7", Version.getPatchVersion());
     }
     
     @Test
     void testFullVersion() {
         String fullVersion = Version.getFullVersion();
         assertNotNull(fullVersion);
-        assertTrue(fullVersion.startsWith("1.0.6"));
+        assertTrue(fullVersion.startsWith("1.0.7"));
         assertTrue(fullVersion.contains("RELEASE"));
     }
     
@@ -134,7 +134,7 @@ public class VersionTest {
         
         // Should contain key information
         assertTrue(versionInfo.contains("log4Rich"));
-        assertTrue(versionInfo.contains("1.0.6"));
+        assertTrue(versionInfo.contains("1.0.7"));
         assertTrue(versionInfo.contains("Build:"));
         assertTrue(versionInfo.contains("Java:"));
         assertTrue(versionInfo.contains("Performance:"));
@@ -167,8 +167,8 @@ public class VersionTest {
     
     @Test
     void testVersionConstants() {
-        // Ensure version is consistent with what we expect for 1.0.6
-        assertEquals("1.0.6", Version.getVersion());
+        // Ensure version is consistent with what we expect for 1.0.7
+        assertEquals("1.0.7", Version.getVersion());
         assertEquals("RELEASE", Version.getBuildType());
     }
     
