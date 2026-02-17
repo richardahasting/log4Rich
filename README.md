@@ -794,7 +794,7 @@ mvn clean package
 <dependency>
     <groupId>com.log4rich</groupId>
     <artifactId>log4Rich</artifactId>
-    <version>1.0.5</version>
+    <version>1.0.6</version>
 </dependency>
 ```
 
@@ -802,10 +802,10 @@ mvn clean package
 
 ```groovy
 // Groovy DSL
-implementation 'com.log4rich:log4Rich:1.0.5'
+implementation 'com.log4rich:log4Rich:1.0.6'
 
 // Kotlin DSL
-implementation("com.log4rich:log4Rich:1.0.5")
+implementation("com.log4rich:log4Rich:1.0.6")
 ```
 
 ## Integration with Existing Logging Frameworks
@@ -1139,6 +1139,14 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 - **Trusted**: Backed by the Apache Software Foundation
 
 ## Changelog
+
+### Version 1.0.6 (February 17, 2026) - Caller Detection Fix
+
+- **LocationInfo Caller Detection**: Replaced hardcoded frame skip with package-based stack walking
+  - Correctly identifies application caller through SLF4J adapters (#17)
+  - Correctly identifies application caller through commons-logging/spring-jcl bridges (#15)
+  - Works with SLF4J fluent API (`atInfo().log()`)
+  - Adapter-depth independent — handles any number of bridge layers
 
 ### Version 1.0.5 (December 23, 2025) - Enterprise Extensions
 

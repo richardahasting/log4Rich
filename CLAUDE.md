@@ -8,9 +8,16 @@ log4Rich is a high-performance Java logging framework designed for ultra-fast lo
 
 ## Version Information
 
-**Current Version**: 1.0.5-RELEASE
-**Release Date**: December 23, 2025
-**Build**: 2025-12-23 22:00:00 UTC
+**Current Version**: 1.0.6-RELEASE
+**Release Date**: February 17, 2026
+**Build**: 2026-02-17 16:00:00 UTC
+
+### Version 1.0.6 Features (Caller Detection Fix)
+- LocationInfo: Package-based stack walking for adapter-independent caller detection
+- Fixes SLF4J adapter showing wrong caller class (#17)
+- Fixes commons-logging/spring-jcl bridge showing wrong caller class (#15)
+- Fixes SLF4J fluent API caller detection
+- All features from version 1.0.5
 
 ### Version 1.0.5 Features (Enterprise Extensions Release)
 - Network Appenders: TCP, UDP, and Syslog (RFC 3164) support
@@ -148,6 +155,19 @@ boolean compatible = Log4Rich.isJavaVersionCompatible(); // Java compatibility
   - Log4RichLoggerAdapter, Log4RichLoggerFactory
   - Full fluent API support
 
+### Session 7: LocationInfo Caller Detection Fix (February 17, 2026) - Fixes #17, #15
+
+- **Package-Based Stack Walking**: Replaced hardcoded `getCaller(3)` frame skip with `getCaller()` that walks the stack and skips frames from known logging framework packages
+  - Skipped packages: `com.log4rich.*`, `org.slf4j.*`, `org.apache.commons.logging.*`, `java.lang.*`
+  - Adapter-depth independent — works regardless of how many bridge layers are stacked
+  - Same approach used by Log4j2's `StackLocator` and Logback's `CallerData`
+- **Root Cause**: The hardcoded skip count of 3 broke when SLF4J adapters or commons-logging/spring-jcl bridges added extra stack frames between the application code and the log4Rich core
+- **Files Modified**:
+  - `LocationInfo.java` — Added `getCaller()` with package-based walking; deprecated `getCaller(int)`
+  - `Logger.java` — Changed `getCaller(3)` → `getCaller()` in `log(LogLevel, String, Throwable)`
+  - `LocationInfoCallerTest.java` (new, in `caller.test` package) — 9 tests covering direct Logger, SLF4J adapter, fluent API, and simulated commons-logging wrapper paths
+- **Note**: Test lives in `caller.test` package (not `com.log4rich.*`) so it acts as "application code" for the package-skip logic
+
 ## Key Architectural Decisions
 
 ### Compression Architecture
@@ -159,6 +179,13 @@ boolean compatible = Log4Rich.isJavaVersionCompatible(); // Java compatibility
   4. Logs change in CAPITAL LETTERS
 - **Background Processing**: Compression occurs in dedicated daemon threads with lower priority
 - **Statistics Tracking**: Comprehensive monitoring of queue utilization, compression counts, and adaptive resizes
+
+### Caller Location Detection
+- **Package-Based Skipping**: `LocationInfo.getCaller()` walks the stack trace and skips all frames from known logging infrastructure packages, returning the first "application" frame
+- **Known Packages**: `com.log4rich.*`, `org.slf4j.*`, `org.apache.commons.logging.*`, `java.lang.*`
+- **Extensibility**: To support additional bridges, add their package prefix to the `LOGGING_PACKAGES` array in `LocationInfo.java`
+- **Backward Compatibility**: The old `getCaller(int)` is preserved but `@Deprecated`
+- **Testing Constraint**: Tests for caller detection must live outside `com.log4rich.*` (currently in `caller.test` package) since the skip logic treats `com.log4rich.*` as framework code
 
 ### Performance Optimizations
 - **Lock-Free Design**: AsyncLogger uses lock-free ring buffers for sub-microsecond latency
@@ -174,7 +201,12 @@ boolean compatible = Log4Rich.isJavaVersionCompatible(); // Java compatibility
 
 ## File Modification Timeline
 
-### Recently Created/Modified Files (July 21, 2025) - Version 1.0.2
+### Recently Created/Modified Files (February 17, 2026) - Fixes #17, #15
+1. **LocationInfo.java** - Added package-based `getCaller()` stack walking method
+2. **Logger.java** - Switched from `getCaller(3)` to `getCaller()`
+3. **LocationInfoCallerTest.java** - 9 tests for caller detection across all adapter paths (in `caller.test` package)
+
+### Previously Created/Modified Files (July 21, 2025) - Version 1.0.2
 1. **JsonLayout.java** - JSON structured logging layout implementation
 2. **JsonObject.java** - Lightweight JSON object builder utility
 3. **JsonArray.java** - Lightweight JSON array builder utility
@@ -199,6 +231,7 @@ boolean compatible = Log4Rich.isJavaVersionCompatible(); // Java compatibility
 - **Performance**: `MemoryMappedFileAppender.java`, `BatchingFileAppender.java`, `ObjectPools.java`
 - **Compression**: `AsyncCompressionManager.java`, `CompressionManager.java`
 - **Configuration**: `Configuration.java`, `ConfigurationManager.java`, `ConfigLoader.java`
+- **Caller Detection**: `LocationInfo.java` (package-based stack walking), `LocationInfoCallerTest.java` (in `caller.test` package)
 
 ## Testing Strategy
 

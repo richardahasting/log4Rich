@@ -35,7 +35,7 @@ public final class Version {
     // Core version information
     private static final String MAJOR_VERSION = "1";
     private static final String MINOR_VERSION = "0";
-    private static final String PATCH_VERSION = "5";
+    private static final String PATCH_VERSION = "6";
     private static final String BUILD_TYPE = "RELEASE";
 
     // Full version string
@@ -43,8 +43,8 @@ public final class Version {
     private static final String FULL_VERSION = VERSION + "-" + BUILD_TYPE;
 
     // Build information
-    private static final String BUILD_DATE = "2025-12-23";
-    private static final String BUILD_TIME = "22:00:00 UTC";
+    private static final String BUILD_DATE = "2026-02-17";
+    private static final String BUILD_TIME = "16:00:00 UTC";
     private static final String BUILD_TIMESTAMP = BUILD_DATE + " " + BUILD_TIME;
     
     // Framework information
@@ -65,6 +65,8 @@ public final class Version {
     
     // Feature highlights for this version
     private static final String[] VERSION_FEATURES = {
+        "Adapter-independent caller location detection",
+        "Correct LocationInfo for SLF4J and commons-logging bridges",
         "Network appenders (TCP, UDP, Syslog RFC 3164)",
         "JDBC database appender with batch inserts",
         "JMX management and monitoring",

@@ -5,6 +5,23 @@ All notable changes to the log4Rich project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.6] - 2026-02-17
+
+### Fixed - Caller Location Detection
+- **LocationInfo.getCaller()**: Replaced hardcoded frame skip count with package-based stack walking
+  - Correctly identifies application caller regardless of adapter depth
+  - Skips frames from `com.log4rich.*`, `org.slf4j.*`, `org.apache.commons.logging.*`, `java.lang.*`
+  - Fixes wrong caller class when using SLF4J adapter (issue #17)
+  - Fixes wrong caller class when using commons-logging/spring-jcl bridge (issue #15)
+  - Also fixes unreported issue with SLF4J fluent API (`atInfo().log(String)`) caller detection
+
+### Changed
+- Updated version to 1.0.6-RELEASE
+- Deprecated `LocationInfo.getCaller(int)` in favor of adapter-independent `getCaller()`
+
+### Added
+- `LocationInfoCallerTest` (9 tests) covering direct Logger, SLF4J adapter, fluent API, and bridge paths
+
 ## [1.0.5] - 2025-12-23
 
 ### Added - Enterprise Extensions Release
@@ -159,6 +176,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Type | Description |
 |---------|------|------|-------------|
+| 1.0.6 | 2026-02-17 | Patch | Fix caller location detection for adapter bridges |
 | 1.0.5 | 2025-12-23 | Minor | Enterprise Extensions (Network, JDBC, JMX) |
 | 1.0.4 | 2025-07-25 | Patch | Bridge integration release |
 | 1.0.3 | 2025-07-22 | Patch | Competitive performance analysis |
