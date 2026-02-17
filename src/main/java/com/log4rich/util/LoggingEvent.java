@@ -196,11 +196,13 @@ public class LoggingEvent {
      * @return the complete message with stack trace if applicable
      */
     public String getRenderedMessage() {
+        String safeMessage = message != null ? message : "";
+
         if (throwable == null) {
-            return message;
+            return safeMessage;
         }
-        
-        StringBuilder sb = new StringBuilder(message);
+
+        StringBuilder sb = new StringBuilder(safeMessage);
         sb.append(System.lineSeparator());
         
         // Add throwable information

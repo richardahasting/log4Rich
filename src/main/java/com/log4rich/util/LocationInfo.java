@@ -49,6 +49,7 @@ public class LocationInfo {
         "com.log4rich.",
         "org.slf4j.",
         "org.apache.commons.logging.",
+        "org.apache.logging.log4j.",
         "java.lang.",
     };
 
