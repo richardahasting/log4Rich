@@ -813,7 +813,7 @@ implementation("com.log4rich:log4Rich:1.0.6")
 log4Rich can be used standalone or integrated with existing logging frameworks through bridge libraries:
 
 ### For SLF4J Applications
-Use **[log4j2-log4Rich](https://github.com/user/log4j2-log4Rich)** bridge to route SLF4J logging to log4Rich:
+Use **[log4j2-log4Rich](https://github.com/richardahasting/log4j2-log4Rich)** bridge to route SLF4J logging to log4Rich:
 
 ```xml
 <!-- Maven -->
@@ -838,7 +838,7 @@ implementation 'org.apache.logging.log4j:log4j-slf4j-impl:2.20.0'
 **Chain**: SLF4J → log4j2 → log4Rich
 
 ### For Legacy log4j 1.x Applications
-Use **[log4j-log4Rich](https://github.com/user/log4j-log4Rich)** bridge for direct log4j 1.x integration:
+Use **[log4j-log4Rich](https://github.com/richardahasting/log4j-log4Rich)** bridge for direct log4j 1.x integration:
 
 ```xml
 <!-- Maven -->
