@@ -494,8 +494,26 @@ public class ConfigurationManager {
                 currentConfig.getConsolePattern()
             );
             consoleAppender.setLevel(currentConfig.getConsoleLevel());
+            if (currentConfig.isJsonEnabled()) {
+                consoleAppender.setLayout(buildJsonLayout());
+            }
             rootLogger.addAppender(consoleAppender);
         }
+    }
+
+    /**
+     * Builds a {@link com.log4rich.layouts.JsonLayout} from the active configuration's
+     * {@code log4rich.json.*} settings. Used when {@code log4rich.json.enabled=true} so the
+     * console/file appenders emit structured JSON instead of the standard pattern.
+     *
+     * @return a configured JsonLayout
+     */
+    private static com.log4rich.layouts.JsonLayout buildJsonLayout() {
+        return new com.log4rich.layouts.JsonLayout(
+            currentConfig.isJsonPrettyPrint(),
+            currentConfig.isJsonIncludeLocation(),
+            currentConfig.isJsonIncludeThread(),
+            currentConfig.getJsonTimestampFormat());
     }
     
     /**
@@ -524,7 +542,10 @@ public class ConfigurationManager {
                 currentConfig.getFilePattern()
             );
             fileAppender.setLevel(currentConfig.getFileLevel());
-            
+            if (currentConfig.isJsonEnabled()) {
+                fileAppender.setLayout(buildJsonLayout());
+            }
+
             // Configure compression
             if (currentConfig.isCompressionEnabled()) {
                 CompressionManager compressionManager = new CompressionManager(
